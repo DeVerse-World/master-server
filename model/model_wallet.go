@@ -20,7 +20,7 @@ func (Wallet) TableName() string {
 }
 
 func (w *Wallet) Create() error {
-	w.Nonce = manager.GenerateRandomString(10)
+	w.Nonce = manager.Utils{}.GenerateRandomString(10)
 	db := DB().Create(w)
 
 	if db.Error != nil {

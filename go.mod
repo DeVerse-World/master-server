@@ -16,6 +16,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hyperjiang/php v0.6.1
+	github.com/ethereum/go-ethereum v1.8.10
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
