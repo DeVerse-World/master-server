@@ -1,10 +1,4 @@
-# gin-skeleton
-
-[![Build Status](https://travis-ci.org/hyperjiang/gin-skeleton.svg?branch=master)](https://travis-ci.org/hyperjiang/gin-skeleton)
-[![Go Report](https://goreportcard.com/badge/github.com/hyperjiang/gin-skeleton)](https://goreportcard.com/report/github.com/hyperjiang/gin-skeleton)
-[![License](https://img.shields.io/github/license/hyperjiang/gin-skeleton.svg)](https://github.com/hyperjiang/gin-skeleton)
-
-Gin Skeleton is a simple boilerplate to kickstart a web server project based on Gin Framework.
+# DeVerse Main Server
 
 Require go version >= 1.14, if your go version is lower, please use legacy branches,
 there are quite a lot of incompatible changes between master and legacy branches.
