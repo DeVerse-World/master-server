@@ -29,6 +29,11 @@ Edit the `config.yml` with your own config
 
 ## Database Migration
 
+**Setup Database**
+1/ install mysql https://flaviocopes.com/mysql-how-to-install/
+2/ Change in config.yml the db password
+3/ Install TablePlus as GUI for db
+
 **Create the database first**
 
 ```
@@ -36,6 +41,10 @@ CREATE DATABASE IF NOT EXISTS `gin` DEFAULT CHARACTER SET utf8mb4;
 ```
 
 **Migrates the database to the most recent version available**
+```
+# Include go path to main path to access go libs executables
+e.g export PATH="$PATH:/Users/hieuletrung/go/bin"
+```
 
 ```
 ./migrate.sh up

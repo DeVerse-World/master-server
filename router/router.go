@@ -11,6 +11,9 @@ import (
 // Route makes the routing
 func Route(app *gin.Engine) {
 	indexController := new(controller.IndexController)
+	userController := new(controller.UserController)
+	walletController := new(controller.WalletController)
+
 	app.GET(
 		"/", indexController.GetIndex,
 	)
@@ -31,7 +34,7 @@ func Route(app *gin.Engine) {
 		})
 	}
 
-	userController := new(controller.UserController)
+	// #TODO: Move to /api
 	app.GET(
 		"/user/:id", userController.GetUser,
 	).GET(
@@ -47,5 +50,9 @@ func Route(app *gin.Engine) {
 	api := app.Group("/api")
 	{
 		api.GET("/version", indexController.GetVersion)
+		api.GET("/wallet/:address", walletController.GetWallet)
+		api.POST("/wallet/signup", walletController.Signup)
+		api.POST("/wallet/auth", walletController.Auth)
+		api.POST("/wallet/mockAuth", walletController.MockAuth)
 	}
 }
