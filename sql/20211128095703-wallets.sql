@@ -7,7 +7,9 @@ CREATE TABLE `wallets` (
  `updated_at` timestamp NULL DEFAULT NULL,
  `created_at` timestamp NULL DEFAULT NULL,
  PRIMARY KEY (`id`),
- UNIQUE KEY `address` (`address`)
+ UNIQUE KEY `address` (`address`),
+ `user_id` int unsigned,
+ CONSTRAINT `fk_wallets_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down
