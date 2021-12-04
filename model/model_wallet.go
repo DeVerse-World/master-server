@@ -11,6 +11,7 @@ type Wallet struct {
 	ID uint `gorm:"primary_key" json:"id"`
 	Address string `json:"address"`
 	Nonce string `json:"nonce"`
+	UserId string `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -40,4 +41,10 @@ func (w *Wallet) GetWalletByAddress(address string) error {
 	}
 
 	return err
+}
+
+func (w *Wallet) FetchAssetsByAddress(walletID uint) ([]Nft, error) {
+	var nfts []Nft
+	err := DB().Find(&nfts, "wallet_id = ?", walletID).Error
+	return nfts, err
 }

@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type NftCollection struct {
 	ID uint `gorm:"primary_key" json:"id"`
@@ -19,4 +21,32 @@ type NftCollection struct {
 
 func (NftCollection) TableName() string {
 	return "nft_collections"
+}
+
+func (c *NftCollection) Create() error {
+	db := DB().Create(c)
+
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected == 0 {
+		return ErrKeyConflict
+	}
+
+	return nil
+}
+
+func (c *NftCollection) GetOrCreate() (*NftCollection, error) {
+	err := DB().Where("token_address=?", c.TokenAddress).First(c).Error
+	if err == nil {
+		return c, nil
+	}
+	db := DB().Create(c)
+
+	if db.Error != nil {
+		return c, db.Error
+	} else if db.RowsAffected == 0 {
+		return c, ErrKeyConflict
+	}
+
+	return c, nil
 }

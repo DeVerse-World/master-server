@@ -1,5 +1,7 @@
 # DeVerse Main Server
 
+
+
 Require go version >= 1.14, if your go version is lower, please use legacy branches,
 there are quite a lot of incompatible changes between master and legacy branches.
 
@@ -20,6 +22,9 @@ go run main.go
 ## Configuration
 
 Edit the `config.yml` with your own config
+
+## Main DB Schema:
+https://dbdiagram.io/d/619a007e02cf5d186b606f44
 
 ## Database Migration
 

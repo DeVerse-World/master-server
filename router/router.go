@@ -13,6 +13,7 @@ func Route(app *gin.Engine) {
 	indexController := new(controller.IndexController)
 	userController := new(controller.UserController)
 	walletController := new(controller.WalletController)
+	// nftController := new(controller.NftController)
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -50,9 +51,14 @@ func Route(app *gin.Engine) {
 	api := app.Group("/api")
 	{
 		api.GET("/version", indexController.GetVersion)
-		api.GET("/wallet/:address", walletController.GetWallet)
+
+		api.GET("/wallet/get/:address", walletController.GetWallet)
+		api.GET("/wallet/profile", walletController.GetWalletPrivateProfile)
+		api.POST("/wallet/updateAssets/:address", walletController.UpdateAssets)
+		api.GET("/wallet/fetchAssets/:address", walletController.FetchAssets)
 		api.POST("/wallet/signup", walletController.Signup)
 		api.POST("/wallet/auth", walletController.Auth)
 		api.POST("/wallet/mockAuth", walletController.MockAuth)
+
 	}
 }

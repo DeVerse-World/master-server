@@ -2,6 +2,7 @@ package schema
 
 type SignupWalletReq struct {
 	Address string `json:"address" binding:"required"`
+	UserId string `json:"user_id"`
 }
 
 type MockAuthWalletReq struct {
@@ -11,4 +12,8 @@ type MockAuthWalletReq struct {
 type AuthWalletReq struct {
 	Address string `json:"address" binding:"required"`
 	Signature string `json:"signature" binding:"required"`
+}
+
+type UpdateAssetReq struct {
+	Nfts []NftStruct `json:"nfts"`
 }

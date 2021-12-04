@@ -8,12 +8,24 @@ type Nft struct {
 	Name string `json:"name"`
 	Description string `json:"description"`
 	RequireFetch bool `json:"require_fetch"`
-	WalletId int `json:"wallet_id"`
-	CollectionId int `json:"collection_id"`
+	WalletId uint `json:"wallet_id"`
+	CollectionId uint `json:"collection_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (Nft) TableName() string {
 	return "nfts"
+}
+
+func (n *Nft) Create() error {
+	db := DB().Create(n)
+
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected == 0 {
+		return ErrKeyConflict
+	}
+
+	return nil
 }
