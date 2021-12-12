@@ -1,4 +1,3 @@
-
 -- +migrate Up
 CREATE TABLE `nfts` (
     `id` int unsigned NOT NULL AUTO_INCREMENT,
