@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-	"github.com/hyperjiang/gin-skeleton/manager"
+	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"gorm.io/gorm"
 	"time"
 )
@@ -11,7 +11,7 @@ type Wallet struct {
 	ID uint `gorm:"primary_key" json:"id"`
 	Address string `json:"address"`
 	Nonce string `json:"nonce"`
-	UserId string `json:"user_id"`
+	// UserId string `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -21,7 +21,7 @@ func (Wallet) TableName() string {
 }
 
 func (w *Wallet) Create() error {
-	w.Nonce = manager.Utils{}.GenerateRandomString(10)
+	w.Nonce = util.Utils{}.GenerateRandomString(10)
 	db := DB().Create(w)
 
 	if db.Error != nil {

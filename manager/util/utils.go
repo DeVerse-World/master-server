@@ -1,4 +1,4 @@
-package manager
+package util
 
 import (
 	"fmt"
@@ -11,10 +11,9 @@ import (
 	"time"
 )
 
-type Utils struct {}
 
 // ShiftPath is path splitting function; useful in the routing logic
-func (Utils) ShiftPath(p string) (head, tail string) {
+func ShiftPath(p string) (head, tail string) {
 	p = path.Clean("/" + p)
 	i := strings.Index(p[1:], "/") + 1
 	if i <= 0 {
@@ -35,7 +34,7 @@ const (
 // GenerateRandomString can be used to create verification codes or something this
 // this implementation comes from stackoverflow
 // https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
-func (Utils) GenerateRandomString(n int) string {
+func GenerateRandomString(n int) string {
 	b := make([]byte, n)
 	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {

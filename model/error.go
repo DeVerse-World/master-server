@@ -12,4 +12,6 @@ var (
 	ErrUserExists   = errors.New("User already exists")
 	ErrUnknown      = errors.New("Unknown Error")
 	ErrFailed       = errors.New("Failed")
+	ErrExpiredToken      = errors.New("Your access token expired")
+	ErrInvalidToken      = errors.New("JWT Token invalid")
 )

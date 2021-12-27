@@ -2,7 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/hyperjiang/gin-skeleton/manager/jwt"
 	"github.com/hyperjiang/gin-skeleton/manager/schema"
+	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"github.com/hyperjiang/gin-skeleton/model"
 	"net/http"
 )
@@ -21,7 +23,10 @@ func (ctrl *WalletController) GetWallet(c *gin.Context) {
 	}
 }
 
-func (ctrl *WalletController) GetWalletPrivateProfile(c *gin.Context) {}
+func (ctrl *WalletController) GetWalletPrivateProfile(c *gin.Context) {
+	w, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	c.JSON(http.StatusOK, w)
+}
 
 func (ctrl *WalletController) UpdateAssets(c *gin.Context) {
 	var req schema.UpdateAssetReq
@@ -68,6 +73,7 @@ func (ctrl *WalletController) Signup(c *gin.Context) {
 
 	var wallet model.Wallet
 	wallet.Address = req.Address
+	wallet.Nonce = util.GenerateRandomString(10)
 
 	if err := wallet.Create(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -81,5 +87,11 @@ func (ctrl *WalletController) Auth(c *gin.Context) {
 }
 
 func (ctrl *WalletController) MockAuth(c *gin.Context) {
+	var req schema.MockAuthWalletReq
+	c.BindJSON(&req)
 
+	var wallet model.Wallet
+	wallet.Address = req.Address
+
+	jwt.WriteUserCookie(c.Writer, &wallet)
 }

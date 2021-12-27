@@ -7,6 +7,8 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/ethereum/go-ethereum v1.8.10
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
@@ -16,7 +18,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hyperjiang/php v0.6.1
-	github.com/ethereum/go-ethereum v1.8.10
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

@@ -61,4 +61,7 @@ func Route(app *gin.Engine) {
 		api.POST("/wallet/mockAuth", walletController.MockAuth)
 
 	}
+
+	api.Use(authMiddleware.MiddlewareFunc())
+
 }
