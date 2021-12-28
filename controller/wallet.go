@@ -67,15 +67,18 @@ func (ctrl *WalletController) FetchAssets(c *gin.Context) {
 	}
 }
 
-func (ctrl *WalletController) Signup(c *gin.Context) {
+func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
 	var req schema.SignupWalletReq
 	c.BindJSON(&req)
 
-	var wallet model.Wallet
-	wallet.Address = req.Address
-	wallet.Nonce = util.GenerateRandomString(10)
+	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authW.Address == req.Address { // nonce message was signed
+		return
+	}
 
-	if err := wallet.Create(); err != nil {
+	var wallet model.Wallet
+
+	if err := wallet.GetOrCreate(req.Address); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		c.JSON(http.StatusOK, wallet)
@@ -83,6 +86,24 @@ func (ctrl *WalletController) Signup(c *gin.Context) {
 }
 
 func (ctrl *WalletController) Auth(c *gin.Context) {
+	var req schema.AuthWalletReq
+	c.BindJSON(&req)
+
+	var wallet model.Wallet
+	if err := wallet.GetWalletByAddress(req.Address); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		msg := "I am signing my one-time nonce: " + wallet.Nonce
+		verifyResult := util.VerifySig(wallet.Address, req.Signature, []byte(msg))
+
+		if !verifyResult {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		} else {
+			jwt.WriteUserCookie(c.Writer, &wallet)
+			c.JSON(http.StatusOK, wallet)
+			wallet.UpdateNonce()
+		}
+	}
 
 }
 

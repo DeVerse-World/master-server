@@ -5,6 +5,10 @@ type SignupWalletReq struct {
 	// UserId string `json:"user_id"`
 }
 
+type GetOrCreateWalletReq struct {
+	Address string `json:"address" binding:"required"`
+}
+
 type MockAuthWalletReq struct {
 	Address string `json:"address" binding:"required"`
 }

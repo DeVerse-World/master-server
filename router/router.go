@@ -56,7 +56,7 @@ func Route(app *gin.Engine) {
 		api.GET("/wallet/profile", walletController.GetWalletPrivateProfile)
 		api.POST("/wallet/updateAssets/:address", walletController.UpdateAssets)
 		api.GET("/wallet/fetchAssets/:address", walletController.FetchAssets)
-		api.POST("/wallet/signup", walletController.Signup)
+		api.POST("/wallet/getOrCreate", walletController.GetOrCreateWallet)
 		api.POST("/wallet/auth", walletController.Auth)
 		api.POST("/wallet/mockAuth", walletController.MockAuth)
 

@@ -21,7 +21,7 @@ func (Wallet) TableName() string {
 }
 
 func (w *Wallet) Create() error {
-	w.Nonce = util.Utils{}.GenerateRandomString(10)
+	w.Nonce = util.GenerateRandomString(10)
 	db := DB().Create(w)
 
 	if db.Error != nil {
@@ -33,6 +33,18 @@ func (w *Wallet) Create() error {
 	return nil
 }
 
+func (w *Wallet) GetOrCreate(address string) error {
+	dbErr := w.GetWalletByAddress(address)
+
+	if (dbErr == nil) {
+		return nil
+	} else {
+		w.Address = address
+		return w.Create()
+	}
+}
+
+
 func (w *Wallet) GetWalletByAddress(address string) error {
 	err := DB().Where("address=?", address).First(w).Error
 
@@ -41,6 +53,10 @@ func (w *Wallet) GetWalletByAddress(address string) error {
 	}
 
 	return err
+}
+
+func (w *Wallet) UpdateNonce() {
+	DB().Model(&w).Update("nonce", util.GenerateRandomString(10))
 }
 
 func (w *Wallet) FetchAssetsByAddress(walletID uint) ([]Nft, error) {
