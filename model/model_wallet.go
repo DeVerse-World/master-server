@@ -55,6 +55,16 @@ func (w *Wallet) GetWalletByAddress(address string) error {
 	return err
 }
 
+func (w *Wallet) GetWalletById(id uint) error {
+	err := DB().Where("id=?", id).First(w).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
 func (w *Wallet) UpdateNonce() {
 	DB().Model(&w).Update("nonce", util.GenerateRandomString(10))
 }

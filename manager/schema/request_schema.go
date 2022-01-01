@@ -18,6 +18,12 @@ type AuthWalletReq struct {
 	Signature string `json:"signature" binding:"required"`
 }
 
+type AuthLoginLink struct {
+	SessionKey string `json:"session_key"`
+	Address string `json:"address" binding:"required"`
+	Signature string `json:"signature" binding:"required"`
+}
+
 type UpdateAssetReq struct {
 	Nfts []NftStruct `json:"nfts"`
 }

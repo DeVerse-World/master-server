@@ -85,6 +85,8 @@ func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
 	}
 }
 
+
+
 func (ctrl *WalletController) Auth(c *gin.Context) {
 	var req schema.AuthWalletReq
 	c.BindJSON(&req)
@@ -115,4 +117,70 @@ func (ctrl *WalletController) MockAuth(c *gin.Context) {
 	wallet.Address = req.Address
 
 	jwt.WriteUserCookie(c.Writer, &wallet)
+}
+
+func (ctrl *WalletController) CreateLoginLink(c *gin.Context) {
+
+	var lr model.LoginRequest
+	if err := lr.Create(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"login_url": "localhost:3000/login/" + lr.SessionKey})
+	}
+}
+
+func (ctrl *WalletController) AuthLoginLink(c *gin.Context) {
+	var req schema.AuthLoginLink
+	c.BindJSON(&req)
+
+	var wallet model.Wallet
+	if err := wallet.GetWalletByAddress(req.Address); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		msg := "I am signing my one-time nonce: " + wallet.Nonce
+		verifyResult := util.VerifySig(wallet.Address, req.Signature, []byte(msg))
+
+		if !verifyResult {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		} else {
+			jwt.WriteUserCookie(c.Writer, &wallet)
+
+			if req.SessionKey != "" {
+				var lr model.LoginRequest
+				if err := lr.GetByKey(req.SessionKey); err != nil {
+					c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+					return
+				} else {
+					lr.UpdateWalletId(wallet.ID)
+				}
+			}
+
+			c.JSON(http.StatusOK, wallet)
+			wallet.UpdateNonce()
+		}
+	}
+}
+
+func (ctrl *WalletController) PollLoginLink(c *gin.Context) {
+	sessionKey := c.Param("session_key")
+
+	var lr model.LoginRequest
+	if err := lr.GetByKey(sessionKey); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if lr.WalletId == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no wallet id => this log in link is not authorized yet"})
+		return
+	}
+
+	var wallet model.Wallet
+	if err := wallet.GetWalletById(*lr.WalletId); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jwt.WriteUserCookie(c.Writer, &wallet)
+	c.JSON(http.StatusOK, wallet)
 }

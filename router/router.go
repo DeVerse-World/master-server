@@ -59,7 +59,9 @@ func Route(app *gin.Engine) {
 		api.POST("/wallet/getOrCreate", walletController.GetOrCreateWallet)
 		api.POST("/wallet/auth", walletController.Auth)
 		api.POST("/wallet/mockAuth", walletController.MockAuth)
-
+		api.POST("/wallet/createLoginLink", walletController.CreateLoginLink)
+		api.POST("/wallet/authLoginLink", walletController.AuthLoginLink)
+		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())

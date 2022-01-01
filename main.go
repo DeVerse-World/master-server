@@ -29,7 +29,7 @@ func main() {
 		AllowOriginFunc: func(origin string) bool {
 			return origin == "http://localhost:3000"
 		},
-		MaxAge: 12 * time.Hour,
+		MaxAge: 12   * time.Hour,
 	}))
 	// app.Use(cors.Default())
 	app.Static("/images", filepath.Join(config.Server.StaticDir, "img"))
