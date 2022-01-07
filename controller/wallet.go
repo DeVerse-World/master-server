@@ -32,17 +32,16 @@ func (ctrl *WalletController) UpdateAssets(c *gin.Context) {
 	var req schema.UpdateAssetReq
 	c.BindJSON(&req)
 
-	address := c.Param("address")
-	var wallet model.Wallet
-	if err := wallet.GetWalletByAddress(address); err != nil {
+	wallet, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if err := wallet.GetWalletByAddress(wallet.Address); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	var nft model.Nft
-	var collection model.NftCollection
 
 	// TODO: Create In Batch
 	for i := 0; i < len(req.Nfts); i++ {
+		var nft model.Nft
+		var collection model.NftCollection
 		collection.TokenAddress = req.Nfts[i].TokenAddress
 		collection.GetOrCreate()
 
@@ -84,8 +83,6 @@ func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
 		c.JSON(http.StatusOK, wallet)
 	}
 }
-
-
 
 func (ctrl *WalletController) Auth(c *gin.Context) {
 	var req schema.AuthWalletReq

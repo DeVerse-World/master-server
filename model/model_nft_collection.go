@@ -7,7 +7,7 @@ import (
 type NftCollection struct {
 	ID uint `gorm:"primary_key" json:"id"`
 	TokenAddress string `json:"token_address"`
-	Amount string `json:"amount"`
+	Amount int `json:"amount"`
 	BlockNumber int `json:"block_number"`
 	MintedBlockNum int `json:"minted_block_num"`
 	ContractType string `json:"contract_type"`
