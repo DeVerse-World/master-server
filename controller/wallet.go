@@ -37,7 +37,6 @@ func (ctrl *WalletController) UpdateAssets(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-
 	// TODO: Create In Batch
 	for i := 0; i < len(req.Nfts); i++ {
 		var nft model.Nft
@@ -72,6 +71,18 @@ func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
 
 	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
 	if authW.Address == req.Address { // nonce message was signed
+		var wallet model.Wallet
+		wallet.GetWalletByAddress(req.Address)
+		// store login Link approval if session key exists
+		if req.SessionKey != "" {
+			var lr model.LoginRequest
+			if err := lr.GetByKey(req.SessionKey); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			} else {
+				lr.UpdateWalletId(wallet.ID)
+			}
+		}
 		return
 	}
 
