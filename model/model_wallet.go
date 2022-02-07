@@ -8,9 +8,9 @@ import (
 )
 
 type Wallet struct {
-	ID uint `gorm:"primary_key" json:"id"`
+	ID      uint   `gorm:"primary_key" json:"id"`
 	Address string `json:"address"`
-	Nonce string `json:"nonce"`
+	Nonce   string `json:"nonce"`
 	// UserId string `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -36,7 +36,7 @@ func (w *Wallet) Create() error {
 func (w *Wallet) GetOrCreate(address string) error {
 	dbErr := w.GetWalletByAddress(address)
 
-	if (dbErr == nil) {
+	if dbErr == nil {
 		return nil
 	} else {
 		w.Address = address
@@ -44,6 +44,15 @@ func (w *Wallet) GetOrCreate(address string) error {
 	}
 }
 
+func (w *Wallet) DeleteWalletNft() error {
+	db := DB().Delete(Nft{}, "wallet_id = ?", w.ID)
+
+	if db.Error != nil {
+		return db.Error
+	}
+
+	return nil
+}
 
 func (w *Wallet) GetWalletByAddress(address string) error {
 	err := DB().Where("address=?", address).First(w).Error
