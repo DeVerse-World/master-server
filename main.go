@@ -8,6 +8,7 @@ import (
 	"github.com/hyperjiang/gin-skeleton/router"
 	"github.com/joho/godotenv"
 	"log"
+	"os"
 	"path/filepath"
 	"time"
 )
@@ -24,15 +25,17 @@ func main() {
 		gin.DisableConsoleColor()
 	}
 
+	uiHost := os.Getenv("UI_HOST")
+
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://" + uiHost},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://localhost:3000"
+			return origin == "http://"+uiHost
 		},
 		MaxAge: 12 * time.Hour,
 	}))
@@ -47,13 +50,13 @@ func main() {
 	// Listen and Serve
 	// app.Use(cors.Default())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://" + uiHost},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://localhost:3000"
+			return origin == "http://"+uiHost
 		},
 		MaxAge: 12 * time.Hour,
 	}))
