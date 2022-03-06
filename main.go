@@ -6,11 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hyperjiang/gin-skeleton/config"
 	"github.com/hyperjiang/gin-skeleton/router"
+	"github.com/joho/godotenv"
+	"log"
 	"path/filepath"
 	"time"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	addr := flag.String("addr", config.Server.Addr, "Address to listen and serve")
 	flag.Parse()
@@ -29,7 +34,7 @@ func main() {
 		AllowOriginFunc: func(origin string) bool {
 			return origin == "http://localhost:3000"
 		},
-		MaxAge: 12   * time.Hour,
+		MaxAge: 12 * time.Hour,
 	}))
 	// app.Use(cors.Default())
 	app.Static("/images", filepath.Join(config.Server.StaticDir, "img"))
