@@ -3,6 +3,7 @@ package router
 import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+
 	"github.com/hyperjiang/gin-skeleton/controller"
 	"github.com/hyperjiang/gin-skeleton/middleware"
 	"github.com/hyperjiang/gin-skeleton/model"
@@ -13,7 +14,7 @@ func Route(app *gin.Engine) {
 	indexController := new(controller.IndexController)
 	userController := new(controller.UserController)
 	walletController := new(controller.WalletController)
-	// nftController := new(controller.NftController)
+	nftController := new(controller.NftController)
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -62,6 +63,8 @@ func Route(app *gin.Engine) {
 		api.POST("/wallet/createLoginLink", walletController.CreateLoginLink)
 		api.POST("/wallet/authLoginLink", walletController.AuthLoginLink)
 		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
+
+		api.GET("/nft/createMintNftLink", nftController.CreateMintNftLink)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())
