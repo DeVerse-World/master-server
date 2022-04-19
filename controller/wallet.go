@@ -1,13 +1,15 @@
 package controller
 
 import (
+	"net/http"
+	"os"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
 	"github.com/hyperjiang/gin-skeleton/manager/schema"
 	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"github.com/hyperjiang/gin-skeleton/model"
-	"net/http"
-	"os"
 )
 
 type WalletController struct{}
@@ -145,7 +147,7 @@ func (ctrl *WalletController) CreateLoginLink(c *gin.Context) {
 	if err := lr.Create(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"login_url": os.Getenv("UI_HOST") + "/login/" + lr.SessionKey})
+		c.JSON(http.StatusOK, gin.H{"login_url": os.Getenv("UI_HOST") + "/login?key=" + lr.SessionKey})
 	}
 }
 
