@@ -64,7 +64,7 @@ func Route(app *gin.Engine) {
 		api.POST("/wallet/authLoginLink", walletController.AuthLoginLink)
 		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
 
-		api.GET("/nft/createMintNftLink", nftController.CreateMintNftLink)
+		api.POST("/nft/createMintNftLink", nftController.CreateMintNftLink)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())
