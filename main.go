@@ -2,15 +2,17 @@ package main
 
 import (
 	"flag"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/hyperjiang/gin-skeleton/config"
-	"github.com/hyperjiang/gin-skeleton/router"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+
+	"github.com/hyperjiang/gin-skeleton/config"
+	"github.com/hyperjiang/gin-skeleton/router"
 )
 
 func main() {
@@ -29,13 +31,13 @@ func main() {
 
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://" + uiHost},
+		AllowOrigins:     []string{uiHost},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://"+uiHost
+			return origin == uiHost
 		},
 		MaxAge: 12 * time.Hour,
 	}))
@@ -50,13 +52,13 @@ func main() {
 	// Listen and Serve
 	// app.Use(cors.Default())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://" + uiHost},
+		AllowOrigins:     []string{uiHost},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://"+uiHost
+			return origin == uiHost
 		},
 		MaxAge: 12 * time.Hour,
 	}))
