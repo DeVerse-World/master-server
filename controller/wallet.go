@@ -1,12 +1,15 @@
 package controller
 
 import (
+	"net/http"
+	"os"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
 	"github.com/hyperjiang/gin-skeleton/manager/schema"
 	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"github.com/hyperjiang/gin-skeleton/model"
-	"net/http"
 )
 
 type WalletController struct{}
@@ -24,8 +27,18 @@ func (ctrl *WalletController) GetWallet(c *gin.Context) {
 }
 
 func (ctrl *WalletController) GetWalletPrivateProfile(c *gin.Context) {
-	w, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	c.JSON(http.StatusOK, w)
+	w, err := jwt.HandleUserCookie(c.Writer, c.Request)
+	if err == nil {
+		var wallet model.Wallet
+		err2 := wallet.GetWalletByAddress(w.Address)
+		if err2 == nil {
+			c.JSON(http.StatusOK, wallet)
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err2.Error()})
+		}
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
 }
 
 func (ctrl *WalletController) UpdateAssets(c *gin.Context) {
@@ -36,6 +49,7 @@ func (ctrl *WalletController) UpdateAssets(c *gin.Context) {
 	if err := wallet.GetWalletByAddress(wallet.Address); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
+	wallet.DeleteWalletNft()
 
 	// TODO: Create In Batch
 	for i := 0; i < len(req.Nfts); i++ {
@@ -70,7 +84,7 @@ func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
 	c.BindJSON(&req)
 
 	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW.Address == req.Address { // nonce message was signed
+	if authW != nil && authW.Address == req.Address { // nonce message was signed
 		var wallet model.Wallet
 		wallet.GetWalletByAddress(req.Address)
 		// store login Link approval if session key exists
@@ -133,7 +147,7 @@ func (ctrl *WalletController) CreateLoginLink(c *gin.Context) {
 	if err := lr.Create(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"login_url": "localhost:3000/login/" + lr.SessionKey})
+		c.JSON(http.StatusOK, gin.H{"login_url": os.Getenv("UI_HOST") + "/login?key=" + lr.SessionKey})
 	}
 }
 

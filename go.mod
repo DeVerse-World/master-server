@@ -20,6 +20,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hyperjiang/php v0.6.1
 	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
@@ -29,7 +30,7 @@ require (
 	github.com/onsi/gomega v1.11.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/rs/zerolog v1.20.0
-	github.com/rubenv/sql-migrate v0.0.0-20211023115951-9f02b1e13857 // indirect
+	github.com/rubenv/sql-migrate v1.0.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect

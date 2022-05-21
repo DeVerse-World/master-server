@@ -33,6 +33,7 @@ type claims struct {
 	User *model.Wallet
 	jwt.StandardClaims
 }
+
 //
 // // RequireAuth middleware makes sure the user exists based on their JWT
 func RequireAuth(w http.ResponseWriter, r *http.Request) (*model.Wallet, bool) {
@@ -50,12 +51,12 @@ func WriteUserCookie(w http.ResponseWriter, u *model.Wallet) {
 	fmt.Println(u)
 	fmt.Println(EncodeUser(u))
 	http.SetCookie(w, &http.Cookie{
-		Name:  cookieName,
-		Value: EncodeUser(u),
-		Path:  "/",
-		//SameSite: 4, //SameSiteNoneMode,
-		//HttpOnly: false,
-		//Secure:   true,
+		Name:     cookieName,
+		Value:    EncodeUser(u),
+		Path:     "/",
+		SameSite: 4, //SameSiteNoneMode,
+		HttpOnly: false,
+		Secure:   true,
 	})
 }
 
@@ -84,6 +85,8 @@ func userFromCookie(r *http.Request) (*model.Wallet, error) {
 	var tokenString string
 	if cookie != nil {
 		tokenString = cookie.Value
+	} else {
+		return nil, model.ErrInvalidToken
 	}
 
 	if tokenString == "" {
@@ -122,7 +125,7 @@ func DecodeUser(tokenString string) (*model.Wallet, error) {
 	if err != nil {
 		// check for expired token
 		if verr, ok := err.(*jwt.ValidationError); ok {
-			if verr.Errors & jwt.ValidationErrorExpired != 0 {
+			if verr.Errors&jwt.ValidationErrorExpired != 0 {
 				return getUserFromToken(token), model.ErrExpiredToken
 			}
 		}

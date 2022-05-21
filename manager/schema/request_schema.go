@@ -25,6 +25,10 @@ type AuthLoginLink struct {
 	Signature  string `json:"signature" binding:"required"`
 }
 
+type CreateMinkLink struct {
+	IpfsHash string `json:"ipfs_hash"`
+}
+
 type UpdateAssetReq struct {
 	Nfts []NftStruct `json:"nfts"`
 }
