@@ -1,0 +1,12 @@
+[Unit]
+Description=deversems
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5s
+WorkingDirectory=/root/repos/prod/main-server/
+ExecStart=/root/repos/prod/main-server/main
+
+[Install]
+WantedBy=multi-user.target
