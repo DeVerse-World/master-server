@@ -55,8 +55,8 @@ func Route(app *gin.Engine) {
 
 		api.GET("/wallet/get/:address", walletController.GetWallet)
 		api.GET("/wallet/profile", walletController.GetWalletPrivateProfile)
-		api.POST("/wallet/updateAssets", walletController.UpdateAssets)
-		api.GET("/wallet/fetchAssets/:address", walletController.FetchAssets)
+		//api.POST("/wallet/updateAssets", walletController.UpdateAssets)
+		//api.GET("/wallet/fetchAssets/:address", walletController.FetchAssets)
 		api.POST("/wallet/getOrCreate", walletController.GetOrCreateWallet)
 		api.POST("/wallet/auth", walletController.Auth)
 		api.POST("/wallet/mockAuth", walletController.MockAuth)
@@ -65,6 +65,9 @@ func Route(app *gin.Engine) {
 		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
 
 		api.POST("/nft/createMintNftLink", nftController.CreateMintNftLink)
+		//api.POST("/nft/notifyMinted", nftController.NotifyMinted)
+		//api.GET("/nft/minted", nftController.getMintedList)
+		//api.GET("/nft/verifyName", nftController.verifyName)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())
