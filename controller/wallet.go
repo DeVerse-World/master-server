@@ -229,6 +229,14 @@ func (ctrl *WalletController) GetTemporaryEventRewards(c *gin.Context) {
 		return
 	}
 
-	var eligibleEvents model.Event
+	var rewardNfts []model.MintedNft
+	rewardNfts, err := model.GetTemporaryRewards(wallet.ID);
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
 
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"reward_nfts": rewardNfts,
+	})
 }

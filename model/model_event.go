@@ -58,5 +58,3 @@ func (e *Event) GetById(id int) error {
 
 	return err
 }
-
-//func (e *Event) GetAllowTemporaryHoldEvents()

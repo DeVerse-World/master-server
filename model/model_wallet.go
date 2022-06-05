@@ -2,9 +2,11 @@ package model
 
 import (
 	"errors"
-	"github.com/hyperjiang/gin-skeleton/manager/util"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
+
+	"github.com/hyperjiang/gin-skeleton/manager/util"
 )
 
 type Wallet struct {
@@ -82,4 +84,13 @@ func (w *Wallet) FetchAssetsByAddress(walletID uint) ([]Nft, error) {
 	var nfts []Nft
 	err := DB().Find(&nfts, "wallet_id = ?", walletID).Error
 	return nfts, err
+}
+
+func GetTemporaryRewards(walletID uint) ([]MintedNft, error) {
+	var rewardNfts []MintedNft
+	// TODO: only gives if in ranking
+	DB().Raw("SELECT mn.* from minted_nfts mn join event_rewards er on er.minted_nft_id = mn.id "+
+		"join events e on e.id = er.event_id join event_participants ep on ep.event_id = e.id WHERE e.allow_temporary_hold > 0 "+
+		"and ep.wallet_id = ?", walletID).Scan(&rewardNfts)
+	return rewardNfts, nil
 }
