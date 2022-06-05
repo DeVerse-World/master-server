@@ -1,6 +1,11 @@
 package model
 
-import "time"
+import (
+	"errors"
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type MintedNft struct {
 	ID                          uint      `gorm:"primary_key" json:"id"`
@@ -13,8 +18,8 @@ type MintedNft struct {
 	FileAssetName               string    `json:"file_asset_name"`
 	FileAssetUri                string    `json:"file_asset_uri"`
 	FileAssetUriFromCentralized string    `json:"file_asset_uri_from_centralized"`
-	File2dUri                   string    `json:"file_2d_uri"`
-	File3dUri                   string    `json:"file_3d_uri"`
+	File2dUri                   string    `gorm:"column:file_2d_uri" json:"file_2d_uri"`
+	File3dUri                   string    `gorm:"column:file_3d_uri" json:"file_3d_uri"`
 	CreatedAt                   time.Time `json:"created_at"`
 	UpdatedAt                   time.Time `json:"updated_at"`
 }
@@ -33,4 +38,14 @@ func (n *MintedNft) Create() error {
 	}
 
 	return nil
+}
+
+func (n *MintedNft) GetByName(name string) error {
+	err := DB().Where("name=?", name).First(n).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
 }

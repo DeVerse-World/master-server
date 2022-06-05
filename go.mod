@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Shopify/go-cache v1.0.0 // indirect
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect

@@ -5,16 +5,19 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/hyperjiang/gin-skeleton/controller"
+	"github.com/hyperjiang/gin-skeleton/manager"
 	"github.com/hyperjiang/gin-skeleton/middleware"
 	"github.com/hyperjiang/gin-skeleton/model"
 )
 
 // Route makes the routing
 func Route(app *gin.Engine) {
+	inMemoryStoragemanager := manager.NewInMemoryStorageManager()
+
 	indexController := new(controller.IndexController)
 	userController := new(controller.UserController)
 	walletController := new(controller.WalletController)
-	nftController := new(controller.NftController)
+	nftController := controller.NewNftController(inMemoryStoragemanager)
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -65,9 +68,12 @@ func Route(app *gin.Engine) {
 		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
 
 		api.POST("/nft/createMintNftLink", nftController.CreateMintNftLink)
-		//api.POST("/nft/notifyMinted", nftController.NotifyMinted)
+		api.POST("/nft/notifyMinted", nftController.NotifyMinted)
 		//api.GET("/nft/minted", nftController.getMintedList)
-		//api.GET("/nft/verifyName", nftController.verifyName)
+
+		api.GET("/nft/checkName", nftController.CheckName)
+		api.POST("/nft/lockName", nftController.LockName)
+		api.POST("/nft/unlockName", nftController.UnlockName)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())
