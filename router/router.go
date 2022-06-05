@@ -16,8 +16,9 @@ func Route(app *gin.Engine) {
 
 	indexController := new(controller.IndexController)
 	userController := new(controller.UserController)
-	walletController := new(controller.WalletController)
+	walletController := controller.NewWalletController()
 	nftController := controller.NewNftController(inMemoryStoragemanager)
+	eventController := controller.NewEventController()
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -66,14 +67,18 @@ func Route(app *gin.Engine) {
 		api.POST("/wallet/createLoginLink", walletController.CreateLoginLink)
 		api.POST("/wallet/authLoginLink", walletController.AuthLoginLink)
 		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
+		api.GET("/wallet/getTemporaryEventRewards", walletController.GetTemporaryEventRewards)
 
 		api.POST("/nft/createMintNftLink", nftController.CreateMintNftLink)
 		api.POST("/nft/notifyMinted", nftController.NotifyMinted)
-		//api.GET("/nft/minted", nftController.getMintedList)
-
 		api.GET("/nft/checkName", nftController.CheckName)
 		api.POST("/nft/lockName", nftController.LockName)
 		api.POST("/nft/unlockName", nftController.UnlockName)
+
+		api.POST("/event", eventController.CreateEvent)
+		api.POST("/event/:id/start", eventController.StartEvent)
+		api.POST("/event/:id/stop", eventController.StartEvent)
+		api.POST("/event/:id/join", eventController.JoinEvent)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())

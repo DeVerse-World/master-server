@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
@@ -13,6 +14,10 @@ import (
 )
 
 type WalletController struct{}
+
+func NewWalletController() *WalletController {
+	return &WalletController{}
+}
 
 func (ctrl *WalletController) GetWallet(c *gin.Context) {
 	var wallet model.Wallet
@@ -205,4 +210,25 @@ func (ctrl *WalletController) PollLoginLink(c *gin.Context) {
 
 	jwt.WriteUserCookie(c.Writer, &wallet)
 	c.JSON(http.StatusOK, wallet)
+}
+
+func (ctrl *WalletController) GetTemporaryEventRewards(c *gin.Context) {
+	const (
+		success = "GetTemporaryEventRewards successfully"
+		failed  = "GetTemporaryEventRewards unsuccessfully"
+	)
+
+	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authW == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
+		return
+	}
+	var wallet model.Wallet
+	if err := wallet.GetWalletByAddress(authW.Address); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	var eligibleEvents model.Event
+
 }

@@ -3,12 +3,14 @@ package model
 import "time"
 
 type EventReward struct {
-	ID          uint      `gorm:"primary_key" json:"id"`
-	Supply      int       `json:"supply"`
-	MintedNftId *uint     `json:"minted_nft_id"`
-	EventId     *uint     `json:"event_id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID              uint      `gorm:"primary_key" json:"id"`
+	Supply          int       `json:"supply"`
+	MintedNftId     *uint     `json:"minted_nft_id"`
+	MinEligibleRank int       `json:"min_eligible_rank"`
+	MaxEligibleRank int       `json:"max_eligible_rank"`
+	EventId         *uint     `json:"event_id"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 func (EventReward) TableName() string {

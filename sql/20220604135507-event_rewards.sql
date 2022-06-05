@@ -2,6 +2,8 @@
 CREATE TABLE `event_rewards` (
     `id` int unsigned NOT NULL AUTO_INCREMENT,
     `supply` int,
+    `min_eligible_rank` int,
+    `max_eligible_rank` int,
     `updated_at` timestamp NULL DEFAULT NULL,
     `created_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),

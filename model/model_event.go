@@ -1,29 +1,34 @@
 package model
 
-import "time"
+import (
+	"errors"
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type eventStage string
 
 const (
-	UNSTARTED   eventStage = "Unstarted"
-	IN_PROGRESS eventStage = "InProgress"
-	PAUSED      eventStage = "Paused"
-	FINISHED    eventStage = "Finished"
+	EVENT_UNSTARTED   eventStage = "Unstarted"
+	EVENT_IN_PROGRESS eventStage = "InProgress"
+	EVENT_PAUSED      eventStage = "Paused"
+	EVENT_FINISHED    eventStage = "Finished"
 )
 
 type Event struct {
-	ID                 uint      `gorm:"primary_key" json:"id"`
-	Name               string    `json:"name"`
-	EventConfigUri     string    `json:"event_config_uri"`
-	MaxNumParticipants string    `json:"max_num_participants"`
-	AllowTemporaryHold int       `json:"allow_temporary_hold"`
-	Stage              string    `json:"stage"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
+	ID                 uint       `gorm:"primary_key" json:"id"`
+	Name               string     `json:"name"`
+	EventConfigUri     string     `json:"event_config_uri"`
+	MaxNumParticipants int        `json:"max_num_participants"`
+	AllowTemporaryHold int        `json:"allow_temporary_hold"`
+	Stage              eventStage `json:"stage"`
+	CreatedAt          time.Time  `json:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at"`
 }
 
 func (Event) TableName() string {
-	return "minted_nfts"
+	return "events"
 }
 
 func (e *Event) Create() error {
@@ -37,3 +42,21 @@ func (e *Event) Create() error {
 
 	return nil
 }
+
+func (e *Event) Update() error {
+	err := DB().Model(&e).Save(e).Error
+
+	return err
+}
+
+func (e *Event) GetById(id int) error {
+	err := DB().Where("id=?", id).First(e).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
+//func (e *Event) GetAllowTemporaryHoldEvents()

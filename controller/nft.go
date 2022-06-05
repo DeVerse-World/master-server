@@ -35,10 +35,9 @@ func (ctrl *NftController) CreateMintNftLink(c *gin.Context) {
 		return
 	}
 
-	resp := gin.H{
+	JSONReturn(c, http.StatusOK, success, gin.H{
 		"mint_nft_url": os.Getenv("UI_HOST") + "/marketplace/create-item?fileUri=" + req.IpfsHash,
-	}
-	JSONReturn(c, http.StatusOK, success, resp)
+	})
 }
 
 func (ctrl *NftController) NotifyMinted(c *gin.Context) {

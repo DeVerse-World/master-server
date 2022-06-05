@@ -3,7 +3,7 @@ CREATE TABLE `events` (
     `id` int unsigned NOT NULL AUTO_INCREMENT,
     `name` varchar(100) DEFAULT '',
     `description` varchar(100) DEFAULT '',
-    `event_config_uri` int DEFAULT 1,
+    `event_config_uri` varchar(100),
     `max_num_participants` int,
     `allow_temporary_hold` int,
     `stage` varchar(100),
