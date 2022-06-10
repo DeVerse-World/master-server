@@ -5,16 +5,20 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/hyperjiang/gin-skeleton/controller"
+	"github.com/hyperjiang/gin-skeleton/manager"
 	"github.com/hyperjiang/gin-skeleton/middleware"
 	"github.com/hyperjiang/gin-skeleton/model"
 )
 
 // Route makes the routing
 func Route(app *gin.Engine) {
+	inMemoryStoragemanager := manager.NewInMemoryStorageManager()
+
 	indexController := new(controller.IndexController)
 	userController := new(controller.UserController)
-	walletController := new(controller.WalletController)
-	nftController := new(controller.NftController)
+	walletController := controller.NewWalletController()
+	nftController := controller.NewNftController(inMemoryStoragemanager)
+	eventController := controller.NewEventController()
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -55,16 +59,26 @@ func Route(app *gin.Engine) {
 
 		api.GET("/wallet/get/:address", walletController.GetWallet)
 		api.GET("/wallet/profile", walletController.GetWalletPrivateProfile)
-		api.POST("/wallet/updateAssets", walletController.UpdateAssets)
-		api.GET("/wallet/fetchAssets/:address", walletController.FetchAssets)
+		//api.POST("/wallet/updateAssets", walletController.UpdateAssets)
+		//api.GET("/wallet/fetchAssets/:address", walletController.FetchAssets)
 		api.POST("/wallet/getOrCreate", walletController.GetOrCreateWallet)
 		api.POST("/wallet/auth", walletController.Auth)
 		api.POST("/wallet/mockAuth", walletController.MockAuth)
 		api.POST("/wallet/createLoginLink", walletController.CreateLoginLink)
 		api.POST("/wallet/authLoginLink", walletController.AuthLoginLink)
 		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
+		api.GET("/wallet/getTemporaryEventRewards", walletController.GetTemporaryEventRewards)
 
 		api.POST("/nft/createMintNftLink", nftController.CreateMintNftLink)
+		api.POST("/nft/notifyMinted", nftController.NotifyMinted)
+		api.GET("/nft/checkName", nftController.CheckName)
+		api.POST("/nft/lockName", nftController.LockName)
+		api.POST("/nft/unlockName", nftController.UnlockName)
+
+		api.POST("/event", eventController.CreateEvent)
+		api.POST("/event/:id/start", eventController.StartEvent)
+		api.POST("/event/:id/stop", eventController.StartEvent)
+		api.POST("/event/:id/join", eventController.JoinEvent)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())

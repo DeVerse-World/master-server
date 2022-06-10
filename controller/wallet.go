@@ -1,18 +1,23 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
-	"github.com/hyperjiang/gin-skeleton/manager/schema"
+	requestSchema "github.com/hyperjiang/gin-skeleton/manager/schema/request"
 	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"github.com/hyperjiang/gin-skeleton/model"
 )
 
 type WalletController struct{}
+
+func NewWalletController() *WalletController {
+	return &WalletController{}
+}
 
 func (ctrl *WalletController) GetWallet(c *gin.Context) {
 	var wallet model.Wallet
@@ -42,7 +47,7 @@ func (ctrl *WalletController) GetWalletPrivateProfile(c *gin.Context) {
 }
 
 func (ctrl *WalletController) UpdateAssets(c *gin.Context) {
-	var req schema.UpdateAssetReq
+	var req requestSchema.UpdateAssetReq
 	c.BindJSON(&req)
 
 	wallet, _ := jwt.HandleUserCookie(c.Writer, c.Request)
@@ -80,7 +85,7 @@ func (ctrl *WalletController) FetchAssets(c *gin.Context) {
 }
 
 func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
-	var req schema.SignupWalletReq
+	var req requestSchema.SignupWalletReq
 	c.BindJSON(&req)
 
 	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
@@ -110,7 +115,7 @@ func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
 }
 
 func (ctrl *WalletController) Auth(c *gin.Context) {
-	var req schema.AuthWalletReq
+	var req requestSchema.AuthWalletReq
 	c.BindJSON(&req)
 
 	var wallet model.Wallet
@@ -132,7 +137,7 @@ func (ctrl *WalletController) Auth(c *gin.Context) {
 }
 
 func (ctrl *WalletController) MockAuth(c *gin.Context) {
-	var req schema.MockAuthWalletReq
+	var req requestSchema.MockAuthWalletReq
 	c.BindJSON(&req)
 
 	var wallet model.Wallet
@@ -152,7 +157,7 @@ func (ctrl *WalletController) CreateLoginLink(c *gin.Context) {
 }
 
 func (ctrl *WalletController) AuthLoginLink(c *gin.Context) {
-	var req schema.AuthLoginLink
+	var req requestSchema.AuthLoginLink
 	c.BindJSON(&req)
 
 	var wallet model.Wallet
@@ -205,4 +210,33 @@ func (ctrl *WalletController) PollLoginLink(c *gin.Context) {
 
 	jwt.WriteUserCookie(c.Writer, &wallet)
 	c.JSON(http.StatusOK, wallet)
+}
+
+func (ctrl *WalletController) GetTemporaryEventRewards(c *gin.Context) {
+	const (
+		success = "GetTemporaryEventRewards successfully"
+		failed  = "GetTemporaryEventRewards unsuccessfully"
+	)
+
+	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authW == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
+		return
+	}
+	var wallet model.Wallet
+	if err := wallet.GetWalletByAddress(authW.Address); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	var rewardNfts []model.MintedNft
+	rewardNfts, err := model.GetTemporaryRewards(wallet.ID);
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"reward_nfts": rewardNfts,
+	})
 }

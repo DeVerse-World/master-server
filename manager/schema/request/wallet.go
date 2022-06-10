@@ -1,4 +1,6 @@
-package schema
+package request
+
+import "github.com/hyperjiang/gin-skeleton/manager/schema"
 
 type SignupWalletReq struct {
 	Address string `json:"address" binding:"required"`
@@ -25,10 +27,6 @@ type AuthLoginLink struct {
 	Signature  string `json:"signature" binding:"required"`
 }
 
-type CreateMinkLink struct {
-	IpfsHash string `json:"ipfs_hash"`
-}
-
 type UpdateAssetReq struct {
-	Nfts []NftStruct `json:"nfts"`
+	Nfts []schema.NftStruct `json:"nfts"`
 }
