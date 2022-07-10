@@ -37,7 +37,7 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == uiHost
+			return origin == uiHost || origin == "http://localhost:3000"
 		},
 		MaxAge: 12 * time.Hour,
 	}))
@@ -58,7 +58,7 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == uiHost
+			return origin == uiHost || origin == "http://localhost:3000"
 		},
 		MaxAge: 12 * time.Hour,
 	}))
