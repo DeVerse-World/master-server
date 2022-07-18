@@ -23,6 +23,7 @@ type Event struct {
 	MaxNumParticipants int        `json:"max_num_participants"`
 	AllowTemporaryHold int        `json:"allow_temporary_hold"`
 	Stage              eventStage `json:"stage"`
+	WalletId           *uint      `json:"wallet_id"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 }
