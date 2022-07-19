@@ -242,3 +242,24 @@ func (ctrl *WalletController) GetTemporaryEventRewards(c *gin.Context) {
 		"reward_nfts": rewardNfts,
 	})
 }
+
+func (ctrl *WalletController) GetAvatars(c *gin.Context) {
+	const (
+		success = "Get Wallet Avatars successfully"
+		failed  = "Get Wallet Avatars unsuccessfully"
+	)
+
+	address := c.Param("address")
+	var wallet model.Wallet
+	if err := wallet.GetWalletByAddress(address); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+	}
+
+	avatars, err := wallet.GetWalletAvatars(wallet.ID)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"avatars": avatars,
+	})
+}

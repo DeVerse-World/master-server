@@ -1,6 +1,6 @@
 server:
   version: v0.1
-  addr: :8082
+  addr: :8080
   mode: debug
   static_dir: ./public
   view_dir: ./view
@@ -9,7 +9,7 @@ server:
 
 database:
   dialect: mysql
-  datasource: root:deverseWorld@2021@tcp(localhost:3306)/gin_test?charset=utf8mb4&timeout=10s&parseTime=True
+  datasource: root:deverseworld@tcp(localhost:3306)/gin?charset=utf8mb4&timeout=10s&parseTime=True
   dir: sql
   table: migrations
   max_idle_conns: 2

@@ -17,6 +17,7 @@ func Route(app *gin.Engine) {
 	indexController := new(controller.IndexController)
 	userController := new(controller.UserController)
 	walletController := controller.NewWalletController()
+	avatarController := controller.NewAvatarController()
 	nftController := controller.NewNftController(inMemoryStoragemanager)
 	eventController := controller.NewEventController()
 
@@ -68,6 +69,12 @@ func Route(app *gin.Engine) {
 		api.POST("/wallet/authLoginLink", walletController.AuthLoginLink)
 		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
 		api.GET("/wallet/getTemporaryEventRewards", walletController.GetTemporaryEventRewards)
+		api.GET("/wallet/getAvatars/:address", walletController.GetAvatars)
+
+		api.GET("/avatar/:id", avatarController.Get)
+		api.POST("/avatar", avatarController.Create)
+		api.PUT("/avatar/:id", avatarController.Update)
+		api.DELETE("/avatar/:id", avatarController.Delete)
 
 		api.POST("/nft/createMintNftLink", nftController.CreateMintNftLink)
 		api.POST("/nft/notifyMinted", nftController.NotifyMinted)
