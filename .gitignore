@@ -5,3 +5,4 @@ vendor/*
 .env
 config.yml
 main
+config_temp.yml
