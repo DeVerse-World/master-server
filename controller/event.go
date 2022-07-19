@@ -31,8 +31,17 @@ func (ctrl *EventController) CreateEvent(c *gin.Context) {
 		return
 	}
 
+	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authW == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
+		return
+	}
+	var wallet model.Wallet
+	wallet.GetWalletByAddress(authW.Address)
+
 	var event = req.Event
 	event.Stage = model.EVENT_UNSTARTED
+	event.WalletId = &wallet.ID
 	if err := event.Create(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
@@ -125,6 +134,10 @@ func (ctrl *EventController) JoinEvent(c *gin.Context) {
 	var event model.Event
 	if err := event.GetById(eventId); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	if event.Stage == model.EVENT_UNSTARTED || event.Stage == model.EVENT_FINISHED {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("event not at join-able stage"))
 		return
 	}
 

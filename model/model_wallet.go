@@ -86,6 +86,12 @@ func (w *Wallet) FetchAssetsByAddress(walletID uint) ([]Nft, error) {
 	return nfts, err
 }
 
+func (w *Wallet) GetWalletAvatars(walletID uint) ([]Avatar, error) {
+	var avatars []Avatar
+	err := DB().Find(&avatars, "wallet_id = ?", walletID).Error
+	return avatars, err
+}
+
 func GetTemporaryRewards(walletID uint) ([]MintedNft, error) {
 	var rewardNfts []MintedNft
 	// TODO: only gives if in ranking

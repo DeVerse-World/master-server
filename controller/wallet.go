@@ -91,18 +91,20 @@ func (ctrl *WalletController) GetOrCreateWallet(c *gin.Context) {
 	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
 	if authW != nil && authW.Address == req.Address { // nonce message was signed
 		var wallet model.Wallet
-		wallet.GetWalletByAddress(req.Address)
-		// store login Link approval if session key exists
-		if req.SessionKey != "" {
-			var lr model.LoginRequest
-			if err := lr.GetByKey(req.SessionKey); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			} else {
-				lr.UpdateWalletId(wallet.ID)
+		err := wallet.GetWalletByAddress(req.Address)
+		if err == nil {
+			// store login Link approval if session key exists
+			if req.SessionKey != "" {
+				var lr model.LoginRequest
+				if err := lr.GetByKey(req.SessionKey); err != nil {
+					c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+					return
+				} else {
+					lr.UpdateWalletId(wallet.ID)
+				}
 			}
+			return
 		}
-		return
 	}
 
 	var wallet model.Wallet
@@ -230,7 +232,7 @@ func (ctrl *WalletController) GetTemporaryEventRewards(c *gin.Context) {
 	}
 
 	var rewardNfts []model.MintedNft
-	rewardNfts, err := model.GetTemporaryRewards(wallet.ID);
+	rewardNfts, err := model.GetTemporaryRewards(wallet.ID)
 	if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
@@ -238,5 +240,26 @@ func (ctrl *WalletController) GetTemporaryEventRewards(c *gin.Context) {
 
 	JSONReturn(c, http.StatusOK, success, gin.H{
 		"reward_nfts": rewardNfts,
+	})
+}
+
+func (ctrl *WalletController) GetAvatars(c *gin.Context) {
+	const (
+		success = "Get Wallet Avatars successfully"
+		failed  = "Get Wallet Avatars unsuccessfully"
+	)
+
+	address := c.Param("address")
+	var wallet model.Wallet
+	if err := wallet.GetWalletByAddress(address); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+	}
+
+	avatars, err := wallet.GetWalletAvatars(wallet.ID)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"avatars": avatars,
 	})
 }

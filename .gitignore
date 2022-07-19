@@ -2,3 +2,6 @@ storage/*
 log/*
 vendor/*
 .idea/
+.env
+config.yml
+main
