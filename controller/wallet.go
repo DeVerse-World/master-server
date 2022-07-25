@@ -253,11 +253,13 @@ func (ctrl *WalletController) GetAvatars(c *gin.Context) {
 	var wallet model.Wallet
 	if err := wallet.GetWalletByAddress(address); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
 	}
 
 	avatars, err := wallet.GetWalletAvatars(wallet.ID)
 	if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
 	}
 	JSONReturn(c, http.StatusOK, success, gin.H{
 		"avatars": avatars,
