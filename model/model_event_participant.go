@@ -1,6 +1,11 @@
 package model
 
-import "time"
+import (
+	"errors"
+	"time"
+
+	"github.com/go-sql-driver/mysql"
+)
 
 type EventParticipant struct {
 	ID        uint      `gorm:"primary_key" json:"id"`
@@ -18,10 +23,11 @@ func (EventParticipant) TableName() string {
 func (o *EventParticipant) Create() error {
 	db := DB().Create(o)
 
-	if db.Error != nil {
-		return db.Error
-	} else if db.RowsAffected == 0 {
+	var mysqlErr *mysql.MySQLError
+	if errors.As(db.Error, &mysqlErr) && mysqlErr.Number == DbDuplicateEntryCode {
 		return ErrKeyConflict
+	} else if db.Error != nil {
+		return db.Error
 	}
 
 	return nil

@@ -154,7 +154,11 @@ func (ctrl *EventController) JoinEvent(c *gin.Context) {
 	eventParticipant.EventId = &eventId
 	eventParticipant.WalletId = &wallet.ID
 	eventParticipant.Score = 0
-	if err := eventParticipant.Create(); err != nil {
+	err = eventParticipant.Create()
+	if err == model.ErrKeyConflict {
+		abortWithStatusError(c, http.StatusMethodNotAllowed, failed, err)
+		return
+	} else if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
 	}
