@@ -109,6 +109,9 @@ func (ctrl *AvatarController) Update(c *gin.Context) {
 	if req.PostprocessUrl != "" {
 		avatar.PostprocessUrl = req.PostprocessUrl
 	}
+	if req.Name != "" {
+		avatar.Name = req.Name
+	}
 	avatar.Update()
 
 	JSONReturn(c, http.StatusOK, success, gin.H{

@@ -8,4 +8,5 @@ type CreateAvatar struct {
 
 type UpdateAvatar struct {
 	PostprocessUrl string `json:"postprocess_url"`
+	Name           string `json:"name"`
 }

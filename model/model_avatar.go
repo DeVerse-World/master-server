@@ -9,6 +9,7 @@ import (
 
 type Avatar struct {
 	ID             uint      `gorm:"primary_key" json:"id"`
+	Name           string    `json:"name"`
 	PreprocessUrl  string    `json:"preprocess_url"`
 	PostprocessUrl string    `json:"postprocess_url"`
 	WalletId       *uint     `json:"wallet_id"`
