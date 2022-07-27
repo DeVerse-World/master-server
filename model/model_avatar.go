@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -34,10 +35,11 @@ func (a *Avatar) GetById(id int) error {
 func (a *Avatar) Create() error {
 	db := DB().Create(a)
 
-	if db.Error != nil {
-		return db.Error
-	} else if db.RowsAffected == 0 {
+	var mysqlErr *mysql.MySQLError
+	if errors.As(db.Error, &mysqlErr) && mysqlErr.Number == DbDuplicateEntryCode {
 		return ErrKeyConflict
+	} else if db.Error != nil {
+		return db.Error
 	}
 
 	return nil

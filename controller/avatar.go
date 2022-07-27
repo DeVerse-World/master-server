@@ -62,7 +62,11 @@ func (ctrl *AvatarController) Create(c *gin.Context) {
 
 	var avatar = req.Avatar
 	avatar.WalletId = &wallet.ID
-	if err := avatar.Create(); err != nil {
+	err := avatar.Create()
+	if err == model.ErrKeyConflict {
+		JSONReturn(c, http.StatusOK, success, gin.H{})
+		return
+	} else if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
 	}
