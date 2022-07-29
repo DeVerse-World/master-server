@@ -7,11 +7,11 @@ type CreateSubworldTemplateRoot struct {
 }
 
 type UpdateSubworldTemplateRoot struct {
-	FileName                string `json:"file_name"  binding:"required"`
-	DisplayName             string `json:"display_name"  binding:"required"`
-	LevelIpfsUri            string `json:"level_ipfs_uri"  binding:"required"`
-	LevelCentralizedUri     string `json:"level_centralized_uri"  binding:"required"`
-	ThumbnailCentralizedUri string `json:"thumbnail_centralized_uri"  binding:"required"`
+	FileName                string `json:"file_name"`
+	DisplayName             string `json:"display_name"`
+	LevelIpfsUri            string `json:"level_ipfs_uri"`
+	LevelCentralizedUri     string `json:"level_centralized_uri"`
+	ThumbnailCentralizedUri string `json:"thumbnail_centralized_uri"`
 }
 
 type CreateSubworldTemplateDerive struct {

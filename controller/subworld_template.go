@@ -106,7 +106,7 @@ func (ctrl *SubworldTemplateController) UpdateRoot(c *gin.Context) {
 	wallet.GetWalletByAddress(authW.Address)
 
 	var subworld_template model.SubworldTemplate
-	idStr := c.Param("id")
+	idStr := c.Param("root_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
@@ -152,7 +152,175 @@ func (ctrl *SubworldTemplateController) DeleteRoot(c *gin.Context) {
 	wallet.GetWalletByAddress(authW.Address)
 
 	var subworld_template model.SubworldTemplate
-	idStr := c.Param("id")
+	idStr := c.Param("root_id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	if err := subworld_template.GetById(id); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if *subworld_template.CreatorId != wallet.ID {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's avatar"))
+	}
+	if err := subworld_template.Delete(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, gin.H{})
+}
+
+func (ctrl *SubworldTemplateController) GetAllDeriv(c *gin.Context) {
+	const (
+		success = "Get Deriv Subworld Templates successfully"
+		failed  = "Get Deriv Subworld Templates unsuccessfully"
+	)
+
+	rootIdStr := c.Param("root_id")
+	rootId, err := strconv.Atoi(rootIdStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	userIdStr := c.Request.URL.Query().Get("user_id")
+
+	if userIdStr == "" {
+		sts, err := model.GetAllDeriv(rootId)
+		if err != nil {
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
+		}
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"subworld_templates": sts,
+		})
+	} else {
+		userId, err := strconv.Atoi(userIdStr)
+		if err != nil {
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
+		}
+		sts, err := model.GetDerivFromCreator(rootId, userId)
+		if err != nil {
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
+		}
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"subworld_templates": sts,
+		})
+	}
+}
+
+func (ctrl *SubworldTemplateController) CreateDeriv(c *gin.Context) {
+	const (
+		success = "Create Deriv Subworld Template successfully"
+		failed  = "Create Deriv Subworld Template unsuccessfully"
+	)
+
+	var req requestSchema.CreateSubworldTemplateDerive
+	if err := c.BindJSON(&req); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authW == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
+		return
+	}
+	var wallet model.Wallet
+	wallet.GetWalletByAddress(authW.Address)
+
+	rootIdStr := c.Param("root_id")
+	rootId, err := strconv.Atoi(rootIdStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	rootIdUInt := uint(rootId)
+	var subworld_template = req.SubworldTemplate
+	subworld_template.CreatorId = &wallet.ID
+	subworld_template.ParentSubworldTemplateId = &rootIdUInt
+	if err := subworld_template.Create(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"subworld_template": subworld_template,
+	})
+}
+
+func (ctrl *SubworldTemplateController) UpdateDeriv(c *gin.Context) {
+	const (
+		success = "Update Deriv Subworld Template successfully"
+		failed  = "Update Deriv Subworld Template unsuccessfully"
+	)
+
+	var req requestSchema.UpdateSubworldTemplateDerive
+	if err := c.BindJSON(&req); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authW == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
+		return
+	}
+	var wallet model.Wallet
+	wallet.GetWalletByAddress(authW.Address)
+
+	var subworld_template model.SubworldTemplate
+	idStr := c.Param("deriv_id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	if err := subworld_template.GetById(id); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if *subworld_template.CreatorId != wallet.ID {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to update other's subworld template"))
+		return
+	}
+
+	subworld_template.FileName = req.FileName
+	subworld_template.DisplayName = req.DisplayName
+	subworld_template.ThumbnailCentralizedUri = req.ThumbnailCentralizedUri
+	subworld_template.DerivativeUri = req.DerivativeUri
+	if err := subworld_template.Update(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"subworld_template": subworld_template,
+	})
+}
+
+func (ctrl *SubworldTemplateController) DeleteDeriv(c *gin.Context) {
+	const (
+		success = "Delete Deriv Subworld Template successfully"
+		failed  = "Delete Deriv Subworld Template unsuccessfully"
+	)
+
+	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authW == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
+		return
+	}
+	var wallet model.Wallet
+	wallet.GetWalletByAddress(authW.Address)
+
+	var subworld_template model.SubworldTemplate
+	idStr := c.Param("deriv_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)

@@ -90,8 +90,13 @@ func Route(app *gin.Engine) {
 
 		api.GET("/subworld/root_template", subworldTemplateController.GetAllRoot)
 		api.POST("/subworld/root_template", subworldTemplateController.CreateRoot)
-		api.PUT("/subworld/root_template/:id", subworldTemplateController.UpdateRoot)
-		api.DELETE("/subworld/root_template/:id", subworldTemplateController.DeleteRoot)
+		api.PUT("/subworld/root_template/:root_id", subworldTemplateController.UpdateRoot)
+		api.DELETE("/subworld/root_template/:root_id", subworldTemplateController.DeleteRoot)
+
+		api.GET("/subworld/root_template/:root_id/deriv", subworldTemplateController.GetAllDeriv)
+		api.POST("/subworld/root_template/:root_id/deriv", subworldTemplateController.CreateDeriv)
+		api.PUT("/subworld/root_template/:root_id/deriv/:deriv_id", subworldTemplateController.UpdateDeriv)
+		api.DELETE("/subworld/root_template/:root_id/deriv/:deriv_id", subworldTemplateController.DeleteDeriv)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())

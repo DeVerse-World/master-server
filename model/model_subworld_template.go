@@ -52,7 +52,7 @@ func GetDerivFromCreator(rootId int, creatorId int) ([]SubworldTemplate, error) 
 	return sts, err
 }
 
-func GetAllDeriv(rootId uint) ([]SubworldTemplate, error) {
+func GetAllDeriv(rootId int) ([]SubworldTemplate, error) {
 	var sts []SubworldTemplate
 	err := DB().
 		Where("parent_subworld_template_id = ?", rootId).
