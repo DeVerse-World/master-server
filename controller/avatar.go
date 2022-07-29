@@ -101,13 +101,16 @@ func (ctrl *AvatarController) Update(c *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
 	}
 	if err := avatar.GetById(id); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
 	}
 
 	if *avatar.WalletId != wallet.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to update other's avatar"))
+		return
 	}
 
 	if req.PostprocessUrl != "" {
@@ -116,7 +119,10 @@ func (ctrl *AvatarController) Update(c *gin.Context) {
 	if req.Name != "" {
 		avatar.Name = req.Name
 	}
-	avatar.Update()
+	if err := avatar.Update(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
 
 	JSONReturn(c, http.StatusOK, success, gin.H{
 		"avatar": avatar,
@@ -150,7 +156,10 @@ func (ctrl *AvatarController) Delete(c *gin.Context) {
 	if *avatar.WalletId != wallet.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's avatar"))
 	}
-	avatar.Delete()
+	if err := avatar.Delete(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
 
 	JSONReturn(c, http.StatusOK, success, gin.H{})
 }

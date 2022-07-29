@@ -20,6 +20,7 @@ func Route(app *gin.Engine) {
 	avatarController := controller.NewAvatarController()
 	nftController := controller.NewNftController(inMemoryStoragemanager)
 	eventController := controller.NewEventController()
+	subworldTemplateController := controller.NewSubworldTemplateController()
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -86,6 +87,11 @@ func Route(app *gin.Engine) {
 		api.POST("/event/:id/start", eventController.StartEvent)
 		api.POST("/event/:id/stop", eventController.StartEvent)
 		api.POST("/event/:id/join", eventController.JoinEvent)
+
+		api.GET("/subworld/root_template", subworldTemplateController.GetAllRoot)
+		api.POST("/subworld/root_template", subworldTemplateController.CreateRoot)
+		api.PUT("/subworld/root_template/:id", subworldTemplateController.UpdateRoot)
+		api.DELETE("/subworld/root_template/:id", subworldTemplateController.DeleteRoot)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())
