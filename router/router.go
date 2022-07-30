@@ -20,6 +20,8 @@ func Route(app *gin.Engine) {
 	avatarController := controller.NewAvatarController()
 	nftController := controller.NewNftController(inMemoryStoragemanager)
 	eventController := controller.NewEventController()
+	subworldTemplateController := controller.NewSubworldTemplateController()
+	subworldInstanceController := controller.NewSubworldInstanceController()
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -86,6 +88,21 @@ func Route(app *gin.Engine) {
 		api.POST("/event/:id/start", eventController.StartEvent)
 		api.POST("/event/:id/stop", eventController.StartEvent)
 		api.POST("/event/:id/join", eventController.JoinEvent)
+
+		api.GET("/subworld/root_template", subworldTemplateController.GetAllRoot)
+		api.POST("/subworld/root_template", subworldTemplateController.CreateRoot)
+		api.PUT("/subworld/root_template/:root_id", subworldTemplateController.UpdateRoot)
+		api.DELETE("/subworld/root_template/:root_id", subworldTemplateController.DeleteRoot)
+
+		api.GET("/subworld/root_template/:root_id/deriv", subworldTemplateController.GetAllDeriv)
+		api.POST("/subworld/root_template/:root_id/deriv", subworldTemplateController.CreateDeriv)
+		api.PUT("/subworld/root_template/:root_id/deriv/:deriv_id", subworldTemplateController.UpdateDeriv)
+		api.DELETE("/subworld/root_template/:root_id/deriv/:deriv_id", subworldTemplateController.DeleteDeriv)
+
+		api.GET("/subworld/instance", subworldInstanceController.GetAll)
+		api.POST("/subworld/instance", subworldInstanceController.Create)
+		api.PUT("/subworld/instance/:id", subworldInstanceController.Update)
+		api.DELETE("/subworld/instance/:id", subworldInstanceController.Delete)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())
