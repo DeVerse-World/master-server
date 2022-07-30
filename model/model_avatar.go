@@ -13,7 +13,7 @@ type Avatar struct {
 	Name           string    `json:"name"`
 	PreprocessUrl  string    `json:"preprocess_url"`
 	PostprocessUrl string    `json:"postprocess_url"`
-	WalletId       *uint     `json:"wallet_id"`
+	UserId         *uint     `json:"user_id"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }

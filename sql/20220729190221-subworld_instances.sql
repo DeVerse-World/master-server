@@ -13,7 +13,7 @@ CREATE TABLE `subworld_instances` (
     `subworld_template_id` int unsigned DEFAULT NULL,
      CONSTRAINT `fk_template_id` FOREIGN KEY (`subworld_template_id`) REFERENCES `subworld_templates` (`id`),
     `host_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_instance_host` FOREIGN KEY (`host_id`) REFERENCES `wallets` (`id`)
+    CONSTRAINT `fk_instance_host` FOREIGN KEY (`host_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

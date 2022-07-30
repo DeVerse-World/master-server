@@ -1,13 +1,10 @@
 package router
 
 import (
-	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 
 	"github.com/hyperjiang/gin-skeleton/controller"
 	"github.com/hyperjiang/gin-skeleton/manager"
-	"github.com/hyperjiang/gin-skeleton/middleware"
-	"github.com/hyperjiang/gin-skeleton/model"
 )
 
 // Route makes the routing
@@ -15,8 +12,7 @@ func Route(app *gin.Engine) {
 	inMemoryStoragemanager := manager.NewInMemoryStorageManager()
 
 	indexController := new(controller.IndexController)
-	userController := new(controller.UserController)
-	walletController := controller.NewWalletController()
+	userController := controller.NewUserController()
 	avatarController := controller.NewAvatarController()
 	nftController := controller.NewNftController(inMemoryStoragemanager)
 	eventController := controller.NewEventController()
@@ -27,51 +23,23 @@ func Route(app *gin.Engine) {
 		"/", indexController.GetIndex,
 	)
 
-	auth := app.Group("/auth")
-	authMiddleware := middleware.Auth()
-	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
-	auth.Use(authMiddleware.MiddlewareFunc())
-	{
-		auth.GET("/hello", func(c *gin.Context) {
-			claims := jwt.ExtractClaims(c)
-			user, _ := c.Get("email")
-			c.JSON(200, gin.H{
-				"email": claims["email"],
-				"name":  user.(*model.User).Name,
-				"text":  "Hello World.",
-			})
-		})
-	}
-
-	// #TODO: Move to /api
-	app.GET(
-		"/user/:id", userController.GetUser,
-	).GET(
-		"/signup", userController.SignupForm,
-	).POST(
-		"/signup", userController.Signup,
-	).GET(
-		"/login", userController.LoginForm,
-	).POST(
-		"/login", authMiddleware.LoginHandler,
-	)
-
 	api := app.Group("/api")
 	{
 		api.GET("/version", indexController.GetVersion)
 
-		api.GET("/wallet/get/:address", walletController.GetWallet)
-		api.GET("/wallet/profile", walletController.GetWalletPrivateProfile)
-		//api.POST("/wallet/updateAssets", walletController.UpdateAssets)
-		//api.GET("/wallet/fetchAssets/:address", walletController.FetchAssets)
-		api.POST("/wallet/getOrCreate", walletController.GetOrCreateWallet)
-		api.POST("/wallet/auth", walletController.Auth)
-		api.POST("/wallet/mockAuth", walletController.MockAuth)
-		api.POST("/wallet/createLoginLink", walletController.CreateLoginLink)
-		api.POST("/wallet/authLoginLink", walletController.AuthLoginLink)
-		api.GET("/wallet/pollLoginLink/:session_key", walletController.PollLoginLink)
-		api.GET("/wallet/getTemporaryEventRewards", walletController.GetTemporaryEventRewards)
-		api.GET("/wallet/getAvatars/:address", walletController.GetAvatars)
+		api.GET("/user/profile", userController.GetUserPrivateProfile)
+		api.GET("/user/profile/:id/getAvatars", userController.GetAvatars)
+		//api.GET("/user/profile/:id", userController.GetUserPublicProfile)
+		api.GET("/user/getByWallet/:wallet_address", userController.GetUserByWalletAddress)
+		//api.POST("/wallet/updateAssets", userController.UpdateAssets)
+		//api.GET("/wallet/fetchAssets/:address", userController.FetchAssets)
+		api.POST("/user/getOrCreate", userController.GetOrCreate)
+		api.POST("/user/auth", userController.Auth)
+		api.POST("/user/mockAuth", userController.MockAuth)
+		api.POST("/user/createLoginLink", userController.CreateLoginLink)
+		api.POST("/user/authLoginLink", userController.AuthLoginLink)
+		api.GET("/user/pollLoginLink/:session_key", userController.PollLoginLink)
+		api.GET("/user/getTemporaryEventRewards", userController.GetTemporaryEventRewards)
 
 		api.GET("/avatar/:id", avatarController.Get)
 		api.POST("/avatar", avatarController.Create)
@@ -104,7 +72,5 @@ func Route(app *gin.Engine) {
 		api.PUT("/subworld/instance/:id", subworldInstanceController.Update)
 		api.DELETE("/subworld/instance/:id", subworldInstanceController.Delete)
 	}
-
-	api.Use(authMiddleware.MiddlewareFunc())
 
 }

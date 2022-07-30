@@ -65,16 +65,16 @@ func (ctrl *SubworldInstanceController) Create(c *gin.Context) {
 		return
 	}
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_instance = req.SubworldInstance
-	subworld_instance.HostId = &wallet.ID
+	subworld_instance.HostId = &user.ID
 	subworld_instance.NumCurrentPlayers = 0
 	if err := subworld_instance.Create(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
@@ -98,13 +98,13 @@ func (ctrl *SubworldInstanceController) Update(c *gin.Context) {
 		return
 	}
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_instance model.SubworldInstance
 	idStr := c.Param("id")
@@ -118,7 +118,7 @@ func (ctrl *SubworldInstanceController) Update(c *gin.Context) {
 		return
 	}
 
-	if *subworld_instance.HostId != wallet.ID {
+	if *subworld_instance.HostId != user.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to update other's subworld instance"))
 		return
 	}
@@ -145,13 +145,13 @@ func (ctrl *SubworldInstanceController) Delete(c *gin.Context) {
 		failed  = "Delete Subworld Instance unsuccessfully"
 	)
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_instance model.SubworldInstance
 	idStr := c.Param("id")
@@ -165,7 +165,7 @@ func (ctrl *SubworldInstanceController) Delete(c *gin.Context) {
 		return
 	}
 
-	if *subworld_instance.HostId != wallet.ID {
+	if *subworld_instance.HostId != user.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's subworld instance"))
 	}
 	if err := subworld_instance.Delete(); err != nil {

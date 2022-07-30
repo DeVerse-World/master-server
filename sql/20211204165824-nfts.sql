@@ -8,8 +8,8 @@ CREATE TABLE `nfts` (
     `updated_at` timestamp NULL DEFAULT NULL,
     `created_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
-    `wallet_id` int unsigned,
-    CONSTRAINT `fk_nfts_wallets` FOREIGN KEY (`wallet_id`) REFERENCES `wallets` (`id`),
+    `user_id` int unsigned,
+    CONSTRAINT `fk_nfts_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
     `collection_id` int unsigned,
     CONSTRAINT `fk_nfts_collections` FOREIGN KEY (`collection_id`) REFERENCES `nft_collections` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

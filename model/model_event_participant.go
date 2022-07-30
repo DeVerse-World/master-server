@@ -10,7 +10,7 @@ import (
 type EventParticipant struct {
 	ID        uint      `gorm:"primary_key" json:"id"`
 	Score     float32   `json:"score"`
-	WalletId  *uint     `json:"wallet_id"`
+	UserId    *uint     `json:"user_id"`
 	EventId   *int      `json:"event_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

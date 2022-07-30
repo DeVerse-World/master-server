@@ -2,17 +2,19 @@ package model
 
 import (
 	"errors"
-	"github.com/hyperjiang/gin-skeleton/manager/util"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
+
+	"github.com/hyperjiang/gin-skeleton/manager/util"
 )
 
 type LoginRequest struct {
-	ID uint `gorm:"primary_key" json:"id"`
-	SessionKey string `json:"session_key"`
-	WalletId *uint `json:"wallet_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         uint      `gorm:"primary_key" json:"id"`
+	SessionKey string    `json:"session_key"`
+	UserId     *uint     `json:"user_id"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 func (LoginRequest) TableName() string {
@@ -42,6 +44,6 @@ func (lr *LoginRequest) GetByKey(session_key string) error {
 	return err
 }
 
-func (lr *LoginRequest) UpdateWalletId(wallet_id uint) {
-	DB().Model(&lr).Update("wallet_id", wallet_id)
+func (lr *LoginRequest) UpdateUserId(user_id uint) {
+	DB().Model(&lr).Update("user_id", user_id)
 }
