@@ -21,6 +21,7 @@ func Route(app *gin.Engine) {
 	nftController := controller.NewNftController(inMemoryStoragemanager)
 	eventController := controller.NewEventController()
 	subworldTemplateController := controller.NewSubworldTemplateController()
+	subworldInstanceController := controller.NewSubworldInstanceController()
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -97,6 +98,11 @@ func Route(app *gin.Engine) {
 		api.POST("/subworld/root_template/:root_id/deriv", subworldTemplateController.CreateDeriv)
 		api.PUT("/subworld/root_template/:root_id/deriv/:deriv_id", subworldTemplateController.UpdateDeriv)
 		api.DELETE("/subworld/root_template/:root_id/deriv/:deriv_id", subworldTemplateController.DeleteDeriv)
+
+		api.GET("/subworld/instance", subworldInstanceController.GetAll)
+		api.POST("/subworld/instance", subworldInstanceController.Create)
+		api.PUT("/subworld/instance/:id", subworldInstanceController.Update)
+		api.DELETE("/subworld/instance/:id", subworldInstanceController.Delete)
 	}
 
 	api.Use(authMiddleware.MiddlewareFunc())

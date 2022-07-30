@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
 
 type SubworldInstance struct {
@@ -23,6 +24,31 @@ type SubworldInstance struct {
 
 func (SubworldInstance) TableName() string {
 	return "subworld_instances"
+}
+
+func GetSubworldInstancesFromHost(hostId int) ([]SubworldInstance, error) {
+	var sis []SubworldInstance
+	err := DB().
+		Where("host_id=?", hostId).
+		Find(&sis).Error
+	return sis, err
+}
+
+func GetAllSubworldInstances() ([]SubworldInstance, error) {
+	var sis []SubworldInstance
+	err := DB().
+		Find(&sis).Error
+	return sis, err
+}
+
+func (st *SubworldInstance) GetById(id int) error {
+	err := DB().Where("id=?", id).First(st).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
 }
 
 func (st *SubworldInstance) Create() error {
