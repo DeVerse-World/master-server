@@ -33,10 +33,10 @@ func (ctrl *UserController) GetUserByWalletAddress(c *gin.Context) {
 }
 
 func (ctrl *UserController) GetUserPrivateProfile(c *gin.Context) {
-	w, err := jwt.HandleUserCookie(c.Writer, c.Request)
-	if err == nil {
+	authU, err := jwt.HandleUserCookie(c.Writer, c.Request)
+	if err == nil || authU != nil { // TODO: Check err of jwt in all different places
 		var user model.User
-		err2 := user.GetUserById(string(w.ID))
+		err2 := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 		if err2 == nil {
 			c.JSON(http.StatusOK, user)
 		} else {
@@ -51,8 +51,9 @@ func (ctrl *UserController) UpdateAssets(c *gin.Context) {
 	var req requestSchema.UpdateAssetReq
 	c.BindJSON(&req)
 
-	user, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if err := user.GetUserById(string(user.ID)); err != nil {
+	var user model.User
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if err := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	user.DeleteUserNft()
@@ -229,7 +230,8 @@ func (ctrl *UserController) PollLoginLink(c *gin.Context) {
 	}
 
 	var user model.User
-	if err := user.GetUserById(string(*lr.UserId)); err != nil {
+
+	if err := user.GetUserById(strconv.FormatUint(uint64(*lr.UserId), 10)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
