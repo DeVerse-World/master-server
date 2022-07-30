@@ -14,7 +14,7 @@ CREATE TABLE `subworld_templates` (
     `parent_subworld_template_id` int unsigned DEFAULT NULL,
     CONSTRAINT `fk_parent_id` FOREIGN KEY (`parent_subworld_template_id`) REFERENCES `subworld_templates` (`id`),
     `creator_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_template_creator` FOREIGN KEY (`creator_id`) REFERENCES `wallets` (`id`)
+    CONSTRAINT `fk_template_creator` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

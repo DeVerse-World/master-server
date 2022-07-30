@@ -31,17 +31,17 @@ func (ctrl *EventController) CreateEvent(c *gin.Context) {
 		return
 	}
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(string(authU.ID))
 
 	var event = req.Event
 	event.Stage = model.EVENT_UNSTARTED
-	event.WalletId = &wallet.ID
+	event.UserId = &user.ID
 	if err := event.Create(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
@@ -141,18 +141,18 @@ func (ctrl *EventController) JoinEvent(c *gin.Context) {
 		return
 	}
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
 
 	// TODO: CHeck if exceed max_num_participants
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(string(authU.ID))
 	var eventParticipant model.EventParticipant
 	eventParticipant.EventId = &eventId
-	eventParticipant.WalletId = &wallet.ID
+	eventParticipant.UserId = &user.ID
 	eventParticipant.Score = 0
 	err = eventParticipant.Create()
 	if err == model.ErrKeyConflict {

@@ -30,15 +30,15 @@ func init() {
 }
 
 type claims struct {
-	User *model.Wallet
+	User *model.User
 	jwt.StandardClaims
 }
 
 //
 // // RequireAuth middleware makes sure the user exists based on their JWT
-func RequireAuth(w http.ResponseWriter, r *http.Request) (*model.Wallet, bool) {
+func RequireAuth(w http.ResponseWriter, r *http.Request) (*model.User, bool) {
 	u, err := HandleUserCookie(w, r)
-	if err != nil || u.Address == "" {
+	if err != nil {
 		return u, false
 	}
 
@@ -46,7 +46,7 @@ func RequireAuth(w http.ResponseWriter, r *http.Request) (*model.Wallet, bool) {
 }
 
 // WriteUserCookie encodes a user's JWT and sets it as an httpOnly & Secure cookie
-func WriteUserCookie(w http.ResponseWriter, u *model.Wallet) {
+func WriteUserCookie(w http.ResponseWriter, u *model.User) {
 	fmt.Println("Set cookie")
 	fmt.Println(u)
 	fmt.Println(EncodeUser(u))
@@ -61,7 +61,7 @@ func WriteUserCookie(w http.ResponseWriter, u *model.Wallet) {
 }
 
 // //// HandleUserCookie attempts to refresh an expired token if the user is still valid
-func HandleUserCookie(w http.ResponseWriter, r *http.Request) (*model.Wallet, error) {
+func HandleUserCookie(w http.ResponseWriter, r *http.Request) (*model.User, error) {
 	u, err := userFromCookie(r)
 
 	// attempt refresh of expired token:
@@ -80,7 +80,7 @@ func HandleUserCookie(w http.ResponseWriter, r *http.Request) (*model.Wallet, er
 }
 
 // userFromCookie builds a user object from a JWT, if it's valid
-func userFromCookie(r *http.Request) (*model.Wallet, error) {
+func userFromCookie(r *http.Request) (*model.User, error) {
 	cookie, _ := r.Cookie(cookieName)
 	var tokenString string
 	if cookie != nil {
@@ -90,14 +90,14 @@ func userFromCookie(r *http.Request) (*model.Wallet, error) {
 	}
 
 	if tokenString == "" {
-		return &model.Wallet{}, nil
+		return &model.User{}, nil
 	}
 
 	return DecodeUser(tokenString)
 }
 
 // EncodeUser convert a user struct into a jwt
-func EncodeUser(u *model.Wallet) (tokenString string) {
+func EncodeUser(u *model.User) (tokenString string) {
 	claims := claims{
 		u,
 		jwt.StandardClaims{
@@ -117,7 +117,7 @@ func EncodeUser(u *model.Wallet) (tokenString string) {
 }
 
 // DecodeUser converts a jwt into a user struct (or returns a zero-value user)
-func DecodeUser(tokenString string) (*model.Wallet, error) {
+func DecodeUser(tokenString string) (*model.User, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &claims{}, func(token *jwt.Token) (interface{}, error) {
 		return hmacSecret, nil
 	})
@@ -138,10 +138,10 @@ func DecodeUser(tokenString string) (*model.Wallet, error) {
 	return getUserFromToken(token), nil
 }
 
-func getUserFromToken(token *jwt.Token) *model.Wallet {
+func getUserFromToken(token *jwt.Token) *model.User {
 	if claims, ok := token.Claims.(*claims); ok {
 		return claims.User
 	}
 
-	return &model.Wallet{}
+	return &model.User{}
 }

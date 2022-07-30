@@ -1,4 +1,4 @@
 -- +migrate Up
-ALTER TABLE events ADD wallet_id int UNSIGNED DEFAULT NULL;
-ALTER TABLE events ADD CONSTRAINT fk_event_wallet FOREIGN KEY (`wallet_id`) REFERENCES `wallets`(`id`);
+ALTER TABLE events ADD user_id int UNSIGNED DEFAULT NULL;
+ALTER TABLE events ADD CONSTRAINT fk_event_user FOREIGN KEY (`user_id`) REFERENCES `users`(`id`);
 -- +migrate Down

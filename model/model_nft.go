@@ -8,7 +8,7 @@ type Nft struct {
 	Name         string    `json:"name"`
 	Description  string    `json:"description"`
 	RequireFetch bool      `json:"require_fetch"`
-	WalletId     uint      `json:"wallet_id"`
+	UserId       uint      `json:"user_id"`
 	CollectionId uint      `json:"collection_id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

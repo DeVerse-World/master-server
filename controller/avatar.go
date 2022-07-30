@@ -52,16 +52,16 @@ func (ctrl *AvatarController) Create(c *gin.Context) {
 		return
 	}
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(string(authU.ID))
 
 	var avatar = req.Avatar
-	avatar.WalletId = &wallet.ID
+	avatar.UserId = &user.ID
 	err := avatar.Create()
 	if err == model.ErrKeyConflict {
 		JSONReturn(c, http.StatusOK, success, gin.H{})
@@ -88,13 +88,13 @@ func (ctrl *AvatarController) Update(c *gin.Context) {
 		return
 	}
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(string(user.ID))
 
 	var avatar model.Avatar
 	idStr := c.Param("id")
@@ -108,7 +108,7 @@ func (ctrl *AvatarController) Update(c *gin.Context) {
 		return
 	}
 
-	if *avatar.WalletId != wallet.ID {
+	if *avatar.UserId != user.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to update other's avatar"))
 		return
 	}
@@ -135,13 +135,13 @@ func (ctrl *AvatarController) Delete(c *gin.Context) {
 		failed  = "Delete Avatar unsuccessfully"
 	)
 
-	authW, _ := jwt.HandleUserCookie(c.Writer, c.Request)
-	if authW == nil {
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't find token"))
 		return
 	}
-	var wallet model.Wallet
-	wallet.GetWalletByAddress(authW.Address)
+	var user model.User
+	user.GetUserById(string(authU.ID))
 
 	var avatar model.Avatar
 	idStr := c.Param("id")
@@ -153,7 +153,7 @@ func (ctrl *AvatarController) Delete(c *gin.Context) {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 	}
 
-	if *avatar.WalletId != wallet.ID {
+	if *avatar.UserId != user.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's avatar"))
 	}
 	if err := avatar.Delete(); err != nil {

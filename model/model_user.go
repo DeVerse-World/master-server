@@ -4,50 +4,26 @@ import (
 	"errors"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+
+	"github.com/hyperjiang/gin-skeleton/manager/util"
 )
 
-// User the user model
 type User struct {
-	ID        uint      `gorm:"primary_key" json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID            uint      `gorm:"primary_key" json:"id"`
+	WalletAddress string    `json:"wallet_address"`
+	WalletNonce   string    `json:"wallet_nonce"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// TableName for gorm
 func (User) TableName() string {
 	return "users"
 }
 
-// GetFirstByID gets the user by his ID
-func (u *User) GetFirstByID(id string) error {
-	err := DB().Where("id=?", id).First(u).Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return ErrDataNotFound
-	}
-
-	return err
-}
-
-// GetFirstByEmail gets the user by his email
-func (u *User) GetFirstByEmail(email string) error {
-	err := DB().Where("email=?", email).First(u).Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return ErrDataNotFound
-	}
-
-	return err
-}
-
-// Create a new user
-func (u *User) Create() error {
-	db := DB().Create(u)
+func (w *User) CreateByWallet() error {
+	w.WalletNonce = util.GenerateRandomString(10)
+	db := DB().Create(w)
 
 	if db.Error != nil {
 		return db.Error
@@ -58,44 +34,68 @@ func (u *User) Create() error {
 	return nil
 }
 
-// Signup a new user
-func (u *User) Signup() error {
-	var user User
-	err := user.GetFirstByEmail(u.Email)
+func (w *User) GetOrCreateByWallet(address string) error {
+	dbErr := w.GetUserByWalletAddress(address)
 
-	if err == nil {
-		return ErrUserExists
-	} else if err != ErrDataNotFound {
-		return err
+	if dbErr == nil {
+		return nil
+	} else {
+		w.WalletAddress = address
+		return w.CreateByWallet()
 	}
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	// replace the plaintext password with ciphertext password
-	u.Password = string(hash)
-
-	return u.Create()
 }
 
-// Login a user
-func (u *User) Login(password string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
-	if err != nil {
-		return err
+func (w *User) DeleteUserNft() error {
+	db := DB().Delete(Nft{}, "user_id = ?", w.ID)
+
+	if db.Error != nil {
+		return db.Error
 	}
+
 	return nil
 }
 
-// LoginByEmailAndPassword login a user by his email and password
-func LoginByEmailAndPassword(email, password string) (*User, error) {
-	var user User
-	err := user.GetFirstByEmail(email)
-	if err != nil {
-		return &user, err
+func (w *User) GetUserByWalletAddress(walletAddress string) error {
+	err := DB().Where("wallet_address=?", walletAddress).First(w).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
 	}
 
-	return &user, user.Login(password)
+	return err
+}
+
+func (w *User) GetUserById(id string) error {
+	err := DB().Where("id=?", id).First(w).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
+func (w *User) UpdateWalletNonce() {
+	DB().Model(&w).Update("wallet_nonce", util.GenerateRandomString(10))
+}
+
+func (w *User) FetchAssetsByUser(userID uint) ([]Nft, error) {
+	var nfts []Nft
+	err := DB().Find(&nfts, "user_id = ?", userID).Error
+	return nfts, err
+}
+
+func (w *User) GetUserAvatars(userID uint) ([]Avatar, error) {
+	var avatars []Avatar
+	err := DB().Find(&avatars, "user_id = ?", userID).Error
+	return avatars, err
+}
+
+func GetTemporaryRewards(userID uint) ([]MintedNft, error) {
+	var rewardNfts []MintedNft
+	// TODO: only gives if in ranking
+	DB().Raw("SELECT mn.* from minted_nfts mn join event_rewards er on er.minted_nft_id = mn.id "+
+		"join events e on e.id = er.event_id join event_participants ep on ep.event_id = e.id WHERE e.allow_temporary_hold > 0 "+
+		"and ep.user_id = ?", userID).Scan(&rewardNfts)
+	return rewardNfts, nil
 }
