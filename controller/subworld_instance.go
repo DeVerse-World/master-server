@@ -71,7 +71,7 @@ func (ctrl *SubworldInstanceController) Create(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_instance = req.SubworldInstance
 	subworld_instance.HostId = &user.ID
@@ -104,7 +104,7 @@ func (ctrl *SubworldInstanceController) Update(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_instance model.SubworldInstance
 	idStr := c.Param("id")
@@ -151,7 +151,7 @@ func (ctrl *SubworldInstanceController) Delete(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_instance model.SubworldInstance
 	idStr := c.Param("id")

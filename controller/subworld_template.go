@@ -71,7 +71,7 @@ func (ctrl *SubworldTemplateController) CreateRoot(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_template = req.SubworldTemplate
 	subworld_template.CreatorId = &user.ID
@@ -103,7 +103,7 @@ func (ctrl *SubworldTemplateController) UpdateRoot(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_template model.SubworldTemplate
 	idStr := c.Param("root_id")
@@ -149,7 +149,7 @@ func (ctrl *SubworldTemplateController) DeleteRoot(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_template model.SubworldTemplate
 	idStr := c.Param("root_id")
@@ -232,7 +232,7 @@ func (ctrl *SubworldTemplateController) CreateDeriv(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	rootIdStr := c.Param("root_id")
 	rootId, err := strconv.Atoi(rootIdStr)
@@ -272,7 +272,7 @@ func (ctrl *SubworldTemplateController) UpdateDeriv(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_template model.SubworldTemplate
 	idStr := c.Param("deriv_id")
@@ -317,7 +317,7 @@ func (ctrl *SubworldTemplateController) DeleteDeriv(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var subworld_template model.SubworldTemplate
 	idStr := c.Param("deriv_id")

@@ -58,7 +58,7 @@ func (ctrl *AvatarController) Create(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var avatar = req.Avatar
 	avatar.UserId = &user.ID
@@ -141,7 +141,7 @@ func (ctrl *AvatarController) Delete(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var avatar model.Avatar
 	idStr := c.Param("id")

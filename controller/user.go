@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -223,7 +224,7 @@ func (ctrl *UserController) PollLoginLink(c *gin.Context) {
 	}
 
 	if lr.UserId == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no wallet id => this log in link is not authorized yet"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no user id => this log in link is not authorized yet"})
 		return
 	}
 
@@ -249,7 +250,7 @@ func (ctrl *UserController) GetTemporaryEventRewards(c *gin.Context) {
 		return
 	}
 	var user model.User
-	if err := user.GetUserById(string(authU.ID)); err != nil {
+	if err := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10)); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
 	}

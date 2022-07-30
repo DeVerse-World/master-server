@@ -37,7 +37,7 @@ func (ctrl *EventController) CreateEvent(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var event = req.Event
 	event.Stage = model.EVENT_UNSTARTED
@@ -149,7 +149,7 @@ func (ctrl *EventController) JoinEvent(c *gin.Context) {
 
 	// TODO: CHeck if exceed max_num_participants
 	var user model.User
-	user.GetUserById(string(authU.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 	var eventParticipant model.EventParticipant
 	eventParticipant.EventId = &eventId
 	eventParticipant.UserId = &user.ID

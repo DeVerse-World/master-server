@@ -3,7 +3,7 @@ package request
 import "github.com/hyperjiang/gin-skeleton/manager/schema"
 
 type SignupUserReq struct {
-	LoginMode      string `json:"string" binding:"required"`
+	LoginMode      string `json:"login_mode" binding:"required"`
 	WalletAddress  string `json:"wallet_address"`
 	GoogleEmail    string `json:"google_email"`
 	CustomEmail    string `json:"custom_email"`
@@ -13,7 +13,7 @@ type SignupUserReq struct {
 }
 
 type GetOrCreateUserReq struct {
-	LoginMode      string `json:"string" binding:"required"`
+	LoginMode      string `json:"login_mode" binding:"required"`
 	WalletAddress  string `json:"wallet_address"`
 	GoogleEmail    string `json:"google_email"`
 	CustomEmail    string `json:"custom_email"`
@@ -21,7 +21,7 @@ type GetOrCreateUserReq struct {
 }
 
 type MockAuthUserReq struct {
-	LoginMode      string `json:"string" binding:"required"`
+	LoginMode      string `json:"login_mode" binding:"required"`
 	WalletAddress  string `json:"wallet_address"`
 	GoogleEmail    string `json:"google_email"`
 	CustomEmail    string `json:"custom_email"`
@@ -29,7 +29,7 @@ type MockAuthUserReq struct {
 }
 
 type AuthUserReq struct {
-	LoginMode       string `json:"string" binding:"required"`
+	LoginMode       string `json:"login_mode" binding:"required"`
 	WalletAddress   string `json:"address"`
 	WalletSignature string `json:"signature"`
 	GoogleEmail     string `json:"google_email"`
@@ -39,7 +39,7 @@ type AuthUserReq struct {
 }
 
 type AuthLoginLink struct {
-	LoginMode       string `json:"string" binding:"required"`
+	LoginMode       string `json:"login_mode" binding:"required"`
 	SessionKey      string `json:"session_key"`
 	WalletAddress   string `json:"wallet_address"`
 	WalletSignature string `json:"wallet_signature"`
