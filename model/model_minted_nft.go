@@ -13,7 +13,7 @@ type MintedNft struct {
 	TokenId                     string    `json:"token_id"`
 	Name                        string    `json:"name"`
 	Description                 string    `json:"description"`
-	Supply                      int       `json:"supply"`
+	Supply                      string    `json:"supply"`
 	AssetType                   string    `json:"asset_type"`
 	FileAssetName               string    `json:"file_asset_name"`
 	FileAssetUri                string    `json:"file_asset_uri"`

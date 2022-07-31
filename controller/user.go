@@ -95,7 +95,7 @@ func (ctrl *UserController) GetOrCreate(c *gin.Context) {
 	if req.LoginMode == "METAMASK" {
 		if authU != nil && authU.WalletAddress == req.WalletAddress { // nonce message was signed
 			var user model.User
-			err := user.GetUserByWalletAddress(req.WalletAddress)
+			err := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 			if err == nil {
 				// store login Link approval if session key exists
 				if req.SessionKey != "" {
