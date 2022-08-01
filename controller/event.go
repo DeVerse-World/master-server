@@ -80,6 +80,10 @@ func (ctrl *EventController) StartEvent(c *gin.Context) {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
 	}
+	if event.Stage != model.EVENT_UNSTARTED && event.Stage != model.EVENT_PAUSED {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can only start un-started/ paused event"))
+		return
+	}
 	event.Stage = model.EVENT_IN_PROGRESS
 	if err := event.Update(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)

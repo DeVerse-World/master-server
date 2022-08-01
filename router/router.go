@@ -54,7 +54,7 @@ func Route(app *gin.Engine) {
 
 		api.POST("/event", eventController.CreateEvent)
 		api.POST("/event/:id/start", eventController.StartEvent)
-		api.POST("/event/:id/stop", eventController.StartEvent)
+		api.POST("/event/:id/stop", eventController.StopEvent)
 		api.POST("/event/:id/join", eventController.JoinEvent)
 
 		api.GET("/subworld/root_template", subworldTemplateController.GetAllRoot)
