@@ -50,6 +50,16 @@ func (e *Event) Update() error {
 	return err
 }
 
+func (a *Event) Delete() error {
+	db := DB().Delete(Event{}, "id = ?", a.ID)
+
+	if db.Error != nil {
+		return db.Error
+	}
+
+	return nil
+}
+
 func (e *Event) GetById(id int) error {
 	err := DB().Where("id=?", id).First(e).Error
 
@@ -58,4 +68,10 @@ func (e *Event) GetById(id int) error {
 	}
 
 	return err
+}
+
+func GetAllEvents() ([]Event, error) {
+	var events []Event
+	err := DB().Find(&events).Error
+	return events, err
 }
