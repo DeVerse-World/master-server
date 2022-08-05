@@ -33,18 +33,89 @@ func (ctrl *UserController) GetUserByWalletAddress(c *gin.Context) {
 }
 
 func (ctrl *UserController) GetUserPrivateProfile(c *gin.Context) {
+	const (
+		success = "Get User Private Profile successfully"
+		failed  = "Get User Private Profile unsuccessfully"
+	)
 	authU, err := jwt.HandleUserCookie(c.Writer, c.Request)
-	if err == nil || authU != nil { // TODO: Check err of jwt in all different places
-		var user model.User
-		err2 := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
-		if err2 == nil {
-			c.JSON(http.StatusOK, user)
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err2.Error()})
-		}
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err != nil && authU == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("Can't parse token"))
+		return
 	}
+
+	var user model.User
+	err2 := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
+	if err2 != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("Not valid user token"))
+		return
+	}
+
+	avatars, err := model.GetUserAvatars(user.ID)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	created_events, err := model.GetUserCreatedEvents(user.ID)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	created_root_subworld_templates, err := model.GetRootFromCreator(int(user.ID))
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	created_deriv_subworld_templates, err := model.GetAllDerivFromCreator(int(user.ID))
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"user":                             user,
+		"avatars":                          avatars,
+		"created_events":                   created_events,
+		"created_root_subworld_templates":  created_root_subworld_templates,
+		"created_deriv_subworld_templates": created_deriv_subworld_templates,
+	})
+}
+
+func (ctrl *UserController) UpdateUserProfile(c *gin.Context) {
+	const (
+		success = "Update User Private Profile successfully"
+		failed  = "Update User Private Profile unsuccessfully"
+	)
+	authU, err := jwt.HandleUserCookie(c.Writer, c.Request)
+	if err != nil && authU == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	var req requestSchema.UpdateUserProfileReq
+	if err := c.BindJSON(&req); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	var user model.User
+	err2 := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
+	if err2 != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("Not valid user token"))
+		return
+	}
+
+	user.Name = req.Name
+	if err := user.Update(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"user": user,
+	})
 }
 
 func (ctrl *UserController) UpdateAssets(c *gin.Context) {
@@ -282,7 +353,7 @@ func (ctrl *UserController) GetAvatars(c *gin.Context) {
 		return
 	}
 
-	avatars, err := user.GetUserAvatars(user.ID)
+	avatars, err := model.GetUserAvatars(user.ID)
 	if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return

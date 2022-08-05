@@ -28,6 +28,7 @@ func Route(app *gin.Engine) {
 		api.GET("/version", indexController.GetVersion)
 
 		api.GET("/user/profile", userController.GetUserPrivateProfile)
+		api.POST("/user/profile", userController.UpdateUserProfile)
 		api.GET("/user/profile/:id/getAvatars", userController.GetAvatars)
 		//api.GET("/user/profile/:id", userController.GetUserPublicProfile)
 		api.GET("/user/getByWallet/:wallet_address", userController.GetUserByWalletAddress)

@@ -11,8 +11,11 @@ import (
 
 type User struct {
 	ID            uint      `gorm:"primary_key" json:"id"`
+	SocialEmail   string    `json:"social_email"`
+	CustomEmail   string    `json:"custom_email"`
 	WalletAddress string    `json:"wallet_address"`
 	WalletNonce   string    `json:"wallet_nonce"`
+	Name          string    `json:"name"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
@@ -43,6 +46,12 @@ func (w *User) GetOrCreateByWallet(address string) error {
 		w.WalletAddress = address
 		return w.CreateByWallet()
 	}
+}
+
+func (w *User) Update() error {
+	err := DB().Model(&w).Save(w).Error
+
+	return err
 }
 
 func (w *User) DeleteUserNft() error {
@@ -83,12 +92,6 @@ func (w *User) FetchAssetsByUser(userID uint) ([]Nft, error) {
 	var nfts []Nft
 	err := DB().Find(&nfts, "user_id = ?", userID).Error
 	return nfts, err
-}
-
-func (w *User) GetUserAvatars(userID uint) ([]Avatar, error) {
-	var avatars []Avatar
-	err := DB().Find(&avatars, "user_id = ?", userID).Error
-	return avatars, err
 }
 
 func GetTemporaryRewards(userID uint) ([]MintedNft, error) {

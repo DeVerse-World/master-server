@@ -52,3 +52,7 @@ type AuthLoginLink struct {
 type UpdateAssetReq struct {
 	Nfts []schema.NftStruct `json:"nfts"`
 }
+
+type UpdateUserProfileReq struct {
+	Name string `json:"name"`
+}

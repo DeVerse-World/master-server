@@ -32,6 +32,22 @@ func (Event) TableName() string {
 	return "events"
 }
 
+func GetUserCreatedEvents(userID uint) ([]Event, error) {
+	var events []Event
+	err := DB().Find(&events, "user_id = ?", userID).Error
+	return events, err
+}
+
+func (e *Event) GetById(id int) error {
+	err := DB().Where("id=?", id).First(e).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
 func (e *Event) Create() error {
 	db := DB().Create(e)
 
@@ -58,16 +74,6 @@ func (a *Event) Delete() error {
 	}
 
 	return nil
-}
-
-func (e *Event) GetById(id int) error {
-	err := DB().Where("id=?", id).First(e).Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return ErrDataNotFound
-	}
-
-	return err
 }
 
 func GetAllEvents() ([]Event, error) {

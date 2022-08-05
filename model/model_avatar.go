@@ -22,6 +22,12 @@ func (Avatar) TableName() string {
 	return "avatars"
 }
 
+func GetUserAvatars(userID uint) ([]Avatar, error) {
+	var avatars []Avatar
+	err := DB().Find(&avatars, "user_id = ?", userID).Error
+	return avatars, err
+}
+
 func (a *Avatar) GetById(id int) error {
 	err := DB().Where("id=?", id).First(a).Error
 

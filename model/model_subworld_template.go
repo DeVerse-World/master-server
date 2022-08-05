@@ -43,6 +43,15 @@ func GetAllRoot() ([]SubworldTemplate, error) {
 	return sts, err
 }
 
+func GetAllDerivFromCreator(creatorId int) ([]SubworldTemplate, error) {
+	var sts []SubworldTemplate
+	err := DB().
+		Where("parent_subworld_template_id is not null").
+		Where("creator_id=?", creatorId).
+		Find(&sts).Error
+	return sts, err
+}
+
 func GetDerivFromCreator(rootId int, creatorId int) ([]SubworldTemplate, error) {
 	var sts []SubworldTemplate
 	err := DB().
