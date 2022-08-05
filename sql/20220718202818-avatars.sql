@@ -7,7 +7,7 @@ CREATE TABLE `avatars` (
      `created_at` timestamp NULL DEFAULT NULL,
      PRIMARY KEY (`id`),
      `user_id` int unsigned DEFAULT NULL,
-     CONSTRAINT `fk_user_avatar` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+     CONSTRAINT `fk_user_avatar` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

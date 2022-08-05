@@ -9,9 +9,9 @@ CREATE TABLE `nfts` (
     `created_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     `user_id` int unsigned,
-    CONSTRAINT `fk_nfts_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+    CONSTRAINT `fk_nfts_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
     `collection_id` int unsigned,
-    CONSTRAINT `fk_nfts_collections` FOREIGN KEY (`collection_id`) REFERENCES `nft_collections` (`id`)
+    CONSTRAINT `fk_nfts_collections` FOREIGN KEY (`collection_id`) REFERENCES `nft_collections` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

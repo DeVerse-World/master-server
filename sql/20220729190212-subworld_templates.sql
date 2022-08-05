@@ -12,9 +12,9 @@ CREATE TABLE `subworld_templates` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `file_name` (`file_name`),
     `parent_subworld_template_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_parent_id` FOREIGN KEY (`parent_subworld_template_id`) REFERENCES `subworld_templates` (`id`),
+    CONSTRAINT `fk_parent_id` FOREIGN KEY (`parent_subworld_template_id`) REFERENCES `subworld_templates` (`id`) ON DELETE CASCADE,
     `creator_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_template_creator` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
+    CONSTRAINT `fk_template_creator` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

@@ -6,9 +6,9 @@ CREATE TABLE `event_reward_ownerships` (
     `created_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     `event_reward_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_event_rewards_ownerships_reward` FOREIGN KEY (`event_reward_id`) REFERENCES `event_rewards` (`id`),
+    CONSTRAINT `fk_event_rewards_ownerships_reward` FOREIGN KEY (`event_reward_id`) REFERENCES `event_rewards` (`id`) ON DELETE CASCADE,
     `participant_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_event_reward_ownerships_participant` FOREIGN KEY (`participant_id`) REFERENCES `event_participants` (`id`)
+    CONSTRAINT `fk_event_reward_ownerships_participant` FOREIGN KEY (`participant_id`) REFERENCES `event_participants` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

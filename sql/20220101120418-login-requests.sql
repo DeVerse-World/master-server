@@ -7,7 +7,7 @@ CREATE TABLE `login_requests` (
     `created_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     `user_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_login_requests_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    CONSTRAINT `fk_login_requests_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

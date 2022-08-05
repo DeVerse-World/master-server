@@ -7,9 +7,9 @@ CREATE TABLE `event_participants` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `event_participant_uniq` (`user_id`, `event_id`),
     `user_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_event_participants_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+    CONSTRAINT `fk_event_participants_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
     `event_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_event_participants_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`)
+    CONSTRAINT `fk_event_participants_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

@@ -11,9 +11,9 @@ CREATE TABLE `subworld_instances` (
     `created_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     `subworld_template_id` int unsigned DEFAULT NULL,
-     CONSTRAINT `fk_template_id` FOREIGN KEY (`subworld_template_id`) REFERENCES `subworld_templates` (`id`),
+     CONSTRAINT `fk_template_id` FOREIGN KEY (`subworld_template_id`) REFERENCES `subworld_templates` (`id`) ON DELETE CASCADE,
     `host_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_instance_host` FOREIGN KEY (`host_id`) REFERENCES `users` (`id`)
+    CONSTRAINT `fk_instance_host` FOREIGN KEY (`host_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down

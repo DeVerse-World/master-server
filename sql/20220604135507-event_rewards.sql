@@ -8,9 +8,9 @@ CREATE TABLE `event_rewards` (
     `created_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     `minted_nft_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_event_rewards_minted_nft` FOREIGN KEY (`minted_nft_id`) REFERENCES `minted_nfts` (`id`),
+    CONSTRAINT `fk_event_rewards_minted_nft` FOREIGN KEY (`minted_nft_id`) REFERENCES `minted_nfts` (`id`) ON DELETE CASCADE,
     `event_id` int unsigned DEFAULT NULL,
-    CONSTRAINT `fk_event_rewards_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`)
+    CONSTRAINT `fk_event_rewards_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down
