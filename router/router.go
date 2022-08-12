@@ -35,7 +35,6 @@ func Route(app *gin.Engine) {
 		//api.POST("/wallet/updateAssets", userController.UpdateAssets)
 		//api.GET("/wallet/fetchAssets/:address", userController.FetchAssets)
 		api.POST("/user/getOrCreate", userController.GetOrCreate)
-		api.POST("/user/auth", userController.Auth)
 		api.POST("/user/mockAuth", userController.MockAuth)
 		api.POST("/user/createLoginLink", userController.CreateLoginLink)
 		api.POST("/user/authLoginLink", userController.AuthLoginLink)

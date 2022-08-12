@@ -8,9 +8,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/hyperjiang/gin-skeleton/manager"
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
 	requestSchema "github.com/hyperjiang/gin-skeleton/manager/schema/request"
-	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"github.com/hyperjiang/gin-skeleton/model"
 )
 
@@ -194,33 +194,6 @@ func (ctrl *UserController) GetOrCreate(c *gin.Context) {
 	}
 }
 
-func (ctrl *UserController) Auth(c *gin.Context) {
-	var req requestSchema.AuthUserReq
-	c.BindJSON(&req)
-
-	var user model.User
-
-	if req.LoginMode == "METAMASK" {
-		if err := user.GetUserByWalletAddress(req.WalletAddress); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
-			msg := "I am signing my one-time nonce: " + user.WalletNonce
-			verifyResult := util.VerifySig(user.WalletAddress, req.WalletSignature, []byte(msg))
-
-			if !verifyResult {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			} else {
-				jwt.WriteUserCookie(c.Writer, &user)
-				c.JSON(http.StatusOK, user)
-				user.UpdateWalletNonce()
-			}
-		}
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported login mode"})
-	}
-
-}
-
 func (ctrl *UserController) MockAuth(c *gin.Context) {
 	var req requestSchema.MockAuthUserReq
 	c.BindJSON(&req)
@@ -255,31 +228,59 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 		if err := user.GetUserByWalletAddress(req.WalletAddress); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
-		} else {
-			msg := "I am signing my one-time nonce: " + user.WalletNonce
-			verifyResult := util.VerifySig(user.WalletAddress, req.WalletSignature, []byte(msg))
+		}
 
-			if !verifyResult {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		msg := "I am signing my one-time nonce: " + user.WalletNonce
+		verifyResult := manager.VerifyWalletSig(user.WalletAddress, req.WalletSignature, []byte(msg))
+
+		if !verifyResult {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": errors.New("signature not verified")})
+			return
+		}
+
+		jwt.WriteUserCookie(c.Writer, &user)
+
+		if req.SessionKey != "" {
+			var lr model.LoginRequest
+			if err := lr.GetByKey(req.SessionKey); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			} else {
-				jwt.WriteUserCookie(c.Writer, &user)
-
-				if req.SessionKey != "" {
-					var lr model.LoginRequest
-					if err := lr.GetByKey(req.SessionKey); err != nil {
-						c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-						return
-						return
-					} else {
-						lr.UpdateUserId(user.ID)
-					}
-				}
-
-				c.JSON(http.StatusOK, user)
-				user.UpdateWalletNonce()
+				lr.UpdateUserId(user.ID)
 			}
 		}
+
+		c.JSON(http.StatusOK, user)
+		user.UpdateWalletNonce()
+	} else if req.LoginMode == "GOOGLE" {
+		if err := user.GetUserByGoogleEmail(req.GoogleEmail); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		claims, err := manager.ValidateGoogleJWT(req.GoogleToken)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+		if claims.Email != user.CustomEmail {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": errors.New("Emails mismatch")})
+			return
+		}
+
+		jwt.WriteUserCookie(c.Writer, &user)
+
+		if req.SessionKey != "" {
+			var lr model.LoginRequest
+			if err := lr.GetByKey(req.SessionKey); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			} else {
+				lr.UpdateUserId(user.ID)
+			}
+		}
+
+		c.JSON(http.StatusOK, user)
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported login mode"})
 		return

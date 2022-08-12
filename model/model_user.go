@@ -74,6 +74,16 @@ func (w *User) GetUserByWalletAddress(walletAddress string) error {
 	return err
 }
 
+func (w *User) GetUserByGoogleEmail(googleEmail string) error {
+	err := DB().Where("social_email=?", googleEmail).First(w).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
 func (w *User) GetUserById(id string) error {
 	err := DB().Where("id=?", id).First(w).Error
 
