@@ -11,6 +11,7 @@ import (
 	"github.com/hyperjiang/gin-skeleton/manager"
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
 	requestSchema "github.com/hyperjiang/gin-skeleton/manager/schema/request"
+	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"github.com/hyperjiang/gin-skeleton/model"
 )
 
@@ -158,6 +159,11 @@ func (ctrl *UserController) FetchAssets(c *gin.Context) {
 }
 
 func (ctrl *UserController) GetOrCreate(c *gin.Context) {
+	const (
+		success = "Get Or Create User successfully"
+		failed  = "Get Or Create User unsuccessfully"
+	)
+
 	var req requestSchema.SignupUserReq
 	c.BindJSON(&req)
 
@@ -172,12 +178,16 @@ func (ctrl *UserController) GetOrCreate(c *gin.Context) {
 				if req.SessionKey != "" {
 					var lr model.LoginRequest
 					if err := lr.GetByKey(req.SessionKey); err != nil {
-						c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+						abortWithStatusError(c, http.StatusBadRequest, failed, err)
 						return
 					} else {
 						lr.UpdateUserId(user.ID)
 					}
 				}
+				JSONReturn(c, http.StatusOK, success, gin.H{
+					"user":         user,
+					"require_auth": false,
+				})
 				return
 			}
 		}
@@ -185,13 +195,90 @@ func (ctrl *UserController) GetOrCreate(c *gin.Context) {
 		var user model.User
 
 		if err := user.GetOrCreateByWallet(req.WalletAddress); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusOK, user)
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
 		}
+
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"user":         user,
+			"require_auth": true,
+		})
+	} else if req.LoginMode == "GOOGLE" {
+		if authU != nil && authU.SocialEmail == req.GoogleEmail { // nonce message was signed
+			var user model.User
+			err := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
+			if err == nil {
+				// store login Link approval if session key exists
+				if req.SessionKey != "" {
+					var lr model.LoginRequest
+					if err := lr.GetByKey(req.SessionKey); err != nil {
+						abortWithStatusError(c, http.StatusBadRequest, failed, err)
+						return
+					} else {
+						lr.UpdateUserId(user.ID)
+					}
+				}
+				JSONReturn(c, http.StatusOK, success, gin.H{
+					"user":         user,
+					"require_auth": false,
+				})
+				return
+			}
+		}
+
+		var user model.User
+
+		if err := user.GetOrCreateBySocialEmail(req.GoogleEmail); err != nil {
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
+		}
+
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"user":         user,
+			"require_auth": true,
+		})
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported login mode"})
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unsupported login mode"))
+		return
 	}
+}
+
+func (ctrl *UserController) Update(c *gin.Context) {
+	const (
+		success = "Update User successfully"
+		failed  = "Update User unsuccessfully"
+	)
+	var req requestSchema.UpdateUserReq
+	c.BindJSON(&req)
+
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU == nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("can't parse token"))
+		return
+	}
+
+	var user model.User
+	if err := user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10)); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	if req.Name != "" {
+		user.Name = req.Name
+	}
+	if req.GoogleEmail != "" {
+		user.SocialEmail = req.GoogleEmail
+	}
+	if req.WalletAddress != "" {
+		user.WalletAddress = req.WalletAddress
+		user.WalletNonce = util.GenerateRandomString(10)
+	}
+	if err := user.Update(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"user": user,
+	})
 }
 
 func (ctrl *UserController) MockAuth(c *gin.Context) {
@@ -219,6 +306,11 @@ func (ctrl *UserController) CreateLoginLink(c *gin.Context) {
 }
 
 func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
+	const (
+		success = "Auth Login Link successfully"
+		failed  = "Auth Login Link unsuccessfully"
+	)
+
 	var req requestSchema.AuthLoginLink
 	c.BindJSON(&req)
 
@@ -226,7 +318,7 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 
 	if req.LoginMode == "METAMASK" {
 		if err := user.GetUserByWalletAddress(req.WalletAddress); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
 			return
 		}
 
@@ -234,7 +326,7 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 		verifyResult := manager.VerifyWalletSig(user.WalletAddress, req.WalletSignature, []byte(msg))
 
 		if !verifyResult {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": errors.New("signature not verified")})
+			abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("signature not verified"))
 			return
 		}
 
@@ -243,14 +335,16 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 		if req.SessionKey != "" {
 			var lr model.LoginRequest
 			if err := lr.GetByKey(req.SessionKey); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				abortWithStatusError(c, http.StatusBadRequest, failed, err)
 				return
 			} else {
 				lr.UpdateUserId(user.ID)
 			}
 		}
 
-		c.JSON(http.StatusOK, user)
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"user": user,
+		})
 		user.UpdateWalletNonce()
 	} else if req.LoginMode == "GOOGLE" {
 		if err := user.GetUserByGoogleEmail(req.GoogleEmail); err != nil {
@@ -260,11 +354,11 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 
 		claims, err := manager.ValidateGoogleJWT(req.GoogleToken)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			abortWithStatusError(c, http.StatusUnauthorized, failed, err)
 			return
 		}
-		if claims.Email != user.CustomEmail {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": errors.New("Emails mismatch")})
+		if claims.Email != user.SocialEmail {
+			abortWithStatusError(c, http.StatusUnauthorized, failed, errors.New("emails mismatch"))
 			return
 		}
 
@@ -273,18 +367,29 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 		if req.SessionKey != "" {
 			var lr model.LoginRequest
 			if err := lr.GetByKey(req.SessionKey); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				abortWithStatusError(c, http.StatusBadRequest, failed, err)
 				return
 			} else {
 				lr.UpdateUserId(user.ID)
 			}
 		}
 
-		c.JSON(http.StatusOK, user)
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"user": user,
+		})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported login mode"})
 		return
 	}
+}
+
+func (ctrl *UserController) Logout(c *gin.Context) {
+	const (
+		success = "Logout successfully"
+		failed  = "Logout unsuccessfully"
+	)
+	jwt.DeleteUserCookie(c.Writer)
+	JSONReturn(c, http.StatusOK, success, gin.H{})
 }
 
 func (ctrl *UserController) PollLoginLink(c *gin.Context) {

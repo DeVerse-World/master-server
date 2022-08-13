@@ -24,6 +24,17 @@ func (User) TableName() string {
 	return "users"
 }
 
+func (w *User) GetOrCreateByWallet(address string) error {
+	dbErr := w.GetUserByWalletAddress(address)
+
+	if dbErr == nil {
+		return nil
+	} else {
+		w.WalletAddress = address
+		return w.CreateByWallet()
+	}
+}
+
 func (w *User) CreateByWallet() error {
 	w.WalletNonce = util.GenerateRandomString(10)
 	db := DB().Create(w)
@@ -37,18 +48,38 @@ func (w *User) CreateByWallet() error {
 	return nil
 }
 
-func (w *User) GetOrCreateByWallet(address string) error {
-	dbErr := w.GetUserByWalletAddress(address)
+func (w *User) GetOrCreateBySocialEmail(socialEmail string) error {
+	dbErr := w.GetUserBySocialEmail(socialEmail)
 
 	if dbErr == nil {
 		return nil
-	} else {
-		w.WalletAddress = address
-		return w.CreateByWallet()
 	}
+
+	w.SocialEmail = socialEmail
+	return w.CreateBySocialEmail()
+}
+
+func (w *User) CreateBySocialEmail() error {
+	db := DB().Create(w)
+
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected == 0 {
+		return ErrKeyConflict
+	}
+
+	return nil
 }
 
 func (w *User) Update() error {
+	// This is a tricky hack for now until figure out how to do partial indexing properly in MySQL
+	var testUsers []User
+	// TODO: only gives if in ranking
+	DB().Raw("SELECT * from users WHERE (social_email = ? and social_email != '') or (wallet_address = ? and wallet_address != '')", w.SocialEmail, w.WalletAddress).Scan(&testUsers)
+	if len(testUsers) > 1 {
+		return errors.New("this wallet address/ social email was linked to another user before")
+	}
+
 	err := DB().Model(&w).Save(w).Error
 
 	return err
@@ -66,6 +97,16 @@ func (w *User) DeleteUserNft() error {
 
 func (w *User) GetUserByWalletAddress(walletAddress string) error {
 	err := DB().Where("wallet_address=?", walletAddress).First(w).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
+func (w *User) GetUserBySocialEmail(socialEmail string) error {
+	err := DB().Where("social_email=?", socialEmail).First(w).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrDataNotFound
