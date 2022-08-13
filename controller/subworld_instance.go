@@ -167,6 +167,7 @@ func (ctrl *SubworldInstanceController) Delete(c *gin.Context) {
 
 	if *subworld_instance.HostId != user.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's subworld instance"))
+		return
 	}
 	if err := subworld_instance.Delete(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)

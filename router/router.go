@@ -27,6 +27,7 @@ func Route(app *gin.Engine) {
 	{
 		api.GET("/version", indexController.GetVersion)
 
+		api.PUT("/user/:id", userController.Update)
 		api.GET("/user/profile", userController.GetUserPrivateProfile)
 		api.POST("/user/profile", userController.UpdateUserProfile)
 		api.GET("/user/profile/:id/getAvatars", userController.GetAvatars)
@@ -35,10 +36,10 @@ func Route(app *gin.Engine) {
 		//api.POST("/wallet/updateAssets", userController.UpdateAssets)
 		//api.GET("/wallet/fetchAssets/:address", userController.FetchAssets)
 		api.POST("/user/getOrCreate", userController.GetOrCreate)
-		api.POST("/user/auth", userController.Auth)
 		api.POST("/user/mockAuth", userController.MockAuth)
 		api.POST("/user/createLoginLink", userController.CreateLoginLink)
 		api.POST("/user/authLoginLink", userController.AuthLoginLink)
+		api.POST("/user/logout", userController.Logout)
 		api.GET("/user/pollLoginLink/:session_key", userController.PollLoginLink)
 		api.GET("/user/getTemporaryEventRewards", userController.GetTemporaryEventRewards)
 

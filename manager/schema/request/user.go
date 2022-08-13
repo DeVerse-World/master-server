@@ -20,6 +20,12 @@ type GetOrCreateUserReq struct {
 	CustomPassword string `json:"custom_password"`
 }
 
+type UpdateUserReq struct {
+	Name          string `json:"name"`
+	WalletAddress string `json:"wallet_address"`
+	GoogleEmail   string `json:"google_email"`
+}
+
 type MockAuthUserReq struct {
 	LoginMode      string `json:"login_mode" binding:"required"`
 	WalletAddress  string `json:"wallet_address"`

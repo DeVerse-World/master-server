@@ -60,6 +60,18 @@ func WriteUserCookie(w http.ResponseWriter, u *model.User) {
 	})
 }
 
+func DeleteUserCookie(w http.ResponseWriter) {
+	fmt.Println("Delete cookie")
+	http.SetCookie(w, &http.Cookie{
+		Name:     cookieName,
+		Value:    "",
+		Path:     "/",
+		SameSite: 4, //SameSiteNoneMode,
+		HttpOnly: false,
+		Secure:   true,
+	})
+}
+
 // //// HandleUserCookie attempts to refresh an expired token if the user is still valid
 func HandleUserCookie(w http.ResponseWriter, r *http.Request) (*model.User, error) {
 	u, err := userFromCookie(r)
