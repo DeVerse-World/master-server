@@ -67,6 +67,8 @@ func Route(app *gin.Engine) {
 		api.POST("/event/:id/rejoin", eventController.Rejoin)
 		api.POST("/event/:id/exit", eventController.Exit)
 
+		api.GET("/subworld/template/:id", subworldTemplateController.GetById)
+
 		api.GET("/subworld/root_template", subworldTemplateController.GetAllRoot)
 		api.POST("/subworld/root_template", subworldTemplateController.CreateRoot)
 		api.PUT("/subworld/root_template/:root_id", subworldTemplateController.UpdateRoot)

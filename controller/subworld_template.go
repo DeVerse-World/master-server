@@ -19,6 +19,29 @@ func NewSubworldTemplateController() *SubworldTemplateController {
 	return &SubworldTemplateController{}
 }
 
+func (ctrl *SubworldTemplateController) GetById(c *gin.Context) {
+	const (
+		success = "Get Template By Id successfully"
+		failed  = "Get Template By Id unsuccessfully"
+	)
+
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	var st model.SubworldTemplate
+	err = st.GetById(id)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"subworld_template": st,
+	})
+}
+
 func (ctrl *SubworldTemplateController) GetAllRoot(c *gin.Context) {
 	const (
 		success = "Get Root Subworld Templates successfully"
@@ -165,6 +188,7 @@ func (ctrl *SubworldTemplateController) DeleteRoot(c *gin.Context) {
 
 	if *subworld_template.CreatorId != user.ID {
 		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's avatar"))
+		return
 	}
 	if err := subworld_template.Delete(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)

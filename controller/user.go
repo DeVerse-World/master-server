@@ -282,14 +282,24 @@ func (ctrl *UserController) Update(c *gin.Context) {
 }
 
 func (ctrl *UserController) MockAuth(c *gin.Context) {
+	const (
+		success = "Mock Auth successfully"
+		failed  = "Mock Auth unsuccessfully"
+	)
 	var req requestSchema.MockAuthUserReq
 	c.BindJSON(&req)
 
 	if req.LoginMode == "METAMASK" {
 		var user model.User
-		user.WalletAddress = req.WalletAddress
+		if err := user.GetUserByWalletAddress(req.WalletAddress); err != nil {
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
+		}
 
 		jwt.WriteUserCookie(c.Writer, &user)
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"user": user,
+		})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported login mode"})
 	}
