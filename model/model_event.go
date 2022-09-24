@@ -19,6 +19,7 @@ const (
 type Event struct {
 	ID                 uint       `gorm:"primary_key" json:"id"`
 	Name               string     `json:"name"`
+	Category           string     `json:"category"`
 	EventConfigUri     string     `json:"event_config_uri"`
 	MaxNumParticipants int        `json:"max_num_participants"`
 	AllowTemporaryHold int        `json:"allow_temporary_hold"`
@@ -49,6 +50,9 @@ func (e *Event) GetById(id int) error {
 }
 
 func (e *Event) Create() error {
+	if !e.isValidEventCategory() {
+		return errors.New("invalid event category")
+	}
 	db := DB().Create(e)
 
 	if db.Error != nil {
@@ -61,6 +65,9 @@ func (e *Event) Create() error {
 }
 
 func (e *Event) Update() error {
+	if !e.isValidEventCategory() {
+		return errors.New("invalid event category")
+	}
 	err := DB().Model(&e).Save(e).Error
 
 	return err
@@ -74,6 +81,16 @@ func (a *Event) Delete() error {
 	}
 
 	return nil
+}
+
+func (e *Event) isValidEventCategory() bool {
+	validCategories := []string{"Battle", "Concert", "Gallery", "Giveaway", "Showcase", "Simulation", "Treasure Hunt"}
+	for _, category := range validCategories {
+		if e.Category == category {
+			return true
+		}
+	}
+	return false
 }
 
 func GetAllEvents() ([]Event, error) {

@@ -146,6 +146,7 @@ func (ctrl *EventController) Update(c *gin.Context) {
 	}
 
 	event.Name = req.Name
+	event.Category = req.Category
 	event.EventConfigUri = req.EventConfigUri
 	event.MaxNumParticipants = req.MaxNumParticipants
 	event.AllowTemporaryHold = req.AllowTemporaryHold

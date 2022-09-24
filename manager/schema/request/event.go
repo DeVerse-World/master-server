@@ -9,6 +9,7 @@ type CreateEvent struct {
 
 type UpdateEvent struct {
 	Name               string `json:"event"`
+	Category           string `json:"category"`
 	EventConfigUri     string `json:"event_config_uri"`
 	MaxNumParticipants int    `json:"max_num_participants"`
 	AllowTemporaryHold int    `json:"allow_temporary_hold"`
