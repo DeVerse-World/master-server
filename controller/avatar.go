@@ -64,6 +64,11 @@ func (ctrl *AvatarController) Create(c *gin.Context) {
 	avatar.UserId = &user.ID
 	err := avatar.Create()
 	if err == model.ErrKeyConflict {
+		err2 := avatar.Update()
+		if err2 != nil {
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
+		}
 		JSONReturn(c, http.StatusOK, success, gin.H{})
 		return
 	} else if err != nil {
