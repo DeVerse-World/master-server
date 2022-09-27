@@ -99,7 +99,7 @@ func (ctrl *AvatarController) Update(c *gin.Context) {
 		return
 	}
 	var user model.User
-	user.GetUserById(string(user.ID))
+	user.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
 
 	var avatar model.Avatar
 	idStr := c.Param("id")
