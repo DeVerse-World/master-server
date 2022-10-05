@@ -15,6 +15,10 @@ type UpdateEvent struct {
 	AllowTemporaryHold int    `json:"allow_temporary_hold"`
 }
 
+type CheckEventParticipant struct {
+	UserId uint `json:"user_id" binding:"required"`
+}
+
 type UpdateScore struct {
 	Score float32 `json:"score"`
 }

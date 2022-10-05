@@ -45,7 +45,7 @@ type AuthUserReq struct {
 }
 
 type AuthLoginLink struct {
-	LoginMode       string `json:"login_mode" binding:"required"`
+	LoginMode       string `json:"login_mode"`
 	SessionKey      string `json:"session_key"`
 	WalletAddress   string `json:"wallet_address"`
 	WalletSignature string `json:"wallet_signature"`

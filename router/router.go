@@ -59,6 +59,7 @@ func Route(app *gin.Engine) {
 		api.GET("/event/:id", eventController.Get)
 		api.PUT("/event/:id", eventController.Update)
 		api.DELETE("/event/:id", eventController.Delete)
+		api.GET("/event/:id/checkParticipant", eventController.CheckParticipant)
 		api.POST("/event/:id/start", eventController.Start)
 		api.POST("/event/:id/pause", eventController.Pause)
 		api.POST("/event/:id/stop", eventController.Stop)

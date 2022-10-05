@@ -198,6 +198,44 @@ func (ctrl *EventController) Delete(c *gin.Context) {
 	JSONReturn(c, http.StatusOK, success, gin.H{})
 }
 
+func (ctrl *EventController) CheckParticipant(c *gin.Context) {
+	const (
+		success = "Check Event Participant successfully"
+		failed  = "Check Event Participant unsuccessfully"
+	)
+
+	var req requestSchema.CheckEventParticipant
+	c.BindJSON(&req)
+
+	var event model.Event
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	if err := event.GetById(id); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	var eventParticipant model.EventParticipant
+	err = eventParticipant.GetParticipant(req.UserId, id)
+	if err != nil && err != model.ErrDataNotFound {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	var result bool
+	if err == model.ErrDataNotFound {
+		result = false
+	} else {
+		result = true
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"result": result,
+	})
+}
+
 func (ctrl *EventController) Start(c *gin.Context) {
 	const (
 		success = "Start Event successfully"

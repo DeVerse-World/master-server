@@ -324,6 +324,28 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 	var req requestSchema.AuthLoginLink
 	c.BindJSON(&req)
 
+	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	if authU != nil {
+		var origUser model.User
+		err := origUser.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
+		if err == nil {
+			// store login Link approval if session key exists
+			if req.SessionKey != "" {
+				var lr model.LoginRequest
+				if err := lr.GetByKey(req.SessionKey); err != nil {
+					abortWithStatusError(c, http.StatusBadRequest, failed, err)
+					return
+				} else {
+					lr.UpdateUserId(origUser.ID)
+				}
+			}
+			JSONReturn(c, http.StatusOK, success, gin.H{
+				"user": origUser,
+			})
+			return
+		}
+	}
+
 	var user model.User
 
 	if req.LoginMode == "METAMASK" {
