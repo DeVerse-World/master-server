@@ -187,7 +187,7 @@ func (ctrl *SubworldTemplateController) DeleteRoot(c *gin.Context) {
 	}
 
 	if *subworld_template.CreatorId != user.ID {
-		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's avatar"))
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's root subworld"))
 		return
 	}
 	if err := subworld_template.Delete(); err != nil {
@@ -356,7 +356,8 @@ func (ctrl *SubworldTemplateController) DeleteDeriv(c *gin.Context) {
 	}
 
 	if *subworld_template.CreatorId != user.ID {
-		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's avatar"))
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("unauthorized to delete other's deriv subworld"))
+		return
 	}
 	if err := subworld_template.Delete(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
