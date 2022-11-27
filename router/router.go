@@ -18,6 +18,7 @@ func Route(app *gin.Engine) {
 	eventController := controller.NewEventController()
 	subworldTemplateController := controller.NewSubworldTemplateController()
 	subworldInstanceController := controller.NewSubworldInstanceController()
+	systemSettingController := controller.NewSystemSettingController()
 
 	app.GET(
 		"/", indexController.GetIndex,
@@ -84,6 +85,9 @@ func Route(app *gin.Engine) {
 		api.POST("/subworld/instance", subworldInstanceController.Create)
 		api.PUT("/subworld/instance/:id", subworldInstanceController.Update)
 		api.DELETE("/subworld/instance/:id", subworldInstanceController.Delete)
+
+		api.GET("/setting", systemSettingController.GetByInfo)
+		api.POST("/setting", systemSettingController.CreateOrUpdate)
 	}
 
 }
