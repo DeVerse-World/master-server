@@ -48,32 +48,40 @@ func (ctrl *SubworldTemplateController) GetAllRoot(c *gin.Context) {
 		failed  = "Get Root Subworld Templates unsuccessfully"
 	)
 
+	var sts []model.SubworldTemplate
+	var err error
+
 	userIdStr := c.Request.URL.Query().Get("user_id")
+	derivable := c.Request.URL.Query().Get("derivable")
 
 	if userIdStr == "" {
-		sts, err := model.GetAllRoot()
+		sts, err = model.GetAllRoot()
 		if err != nil {
 			abortWithStatusError(c, http.StatusBadRequest, failed, err)
 			return
 		}
-		JSONReturn(c, http.StatusOK, success, gin.H{
-			"subworld_templates": sts,
-		})
 	} else {
 		userId, err := strconv.Atoi(userIdStr)
 		if err != nil {
 			abortWithStatusError(c, http.StatusBadRequest, failed, err)
 			return
 		}
-		sts, err := model.GetRootFromCreator(userId)
+		sts, err = model.GetRootFromCreator(userId)
 		if err != nil {
 			abortWithStatusError(c, http.StatusBadRequest, failed, err)
 			return
 		}
-		JSONReturn(c, http.StatusOK, success, gin.H{
-			"subworld_templates": sts,
-		})
 	}
+
+	filtered_sts := []model.SubworldTemplate{}
+	for i := range sts {
+		if derivable == "" || strconv.Itoa(sts[i].Derivable) == derivable {
+			filtered_sts = append(filtered_sts, sts[i])
+		}
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"subworld_templates": filtered_sts,
+	})
 }
 
 func (ctrl *SubworldTemplateController) CreateRoot(c *gin.Context) {
@@ -150,6 +158,7 @@ func (ctrl *SubworldTemplateController) UpdateRoot(c *gin.Context) {
 	subworld_template.LevelIpfsUri = req.LevelIpfsUri
 	subworld_template.LevelCentralizedUri = req.LevelCentralizedUri
 	subworld_template.ThumbnailCentralizedUri = req.ThumbnailCentralizedUri
+	subworld_template.Derivable = req.Derivable
 	if err := subworld_template.Update(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
@@ -204,6 +213,9 @@ func (ctrl *SubworldTemplateController) GetAllDeriv(c *gin.Context) {
 		failed  = "Get Deriv Subworld Templates unsuccessfully"
 	)
 
+	var sts []model.SubworldTemplate
+	var err error
+
 	rootIdStr := c.Param("root_id")
 	rootId, err := strconv.Atoi(rootIdStr)
 	if err != nil {
@@ -211,31 +223,36 @@ func (ctrl *SubworldTemplateController) GetAllDeriv(c *gin.Context) {
 		return
 	}
 	userIdStr := c.Request.URL.Query().Get("user_id")
+	derivable := c.Request.URL.Query().Get("derivable")
 
 	if userIdStr == "" {
-		sts, err := model.GetAllDeriv(rootId)
+		sts, err = model.GetAllDeriv(rootId)
 		if err != nil {
 			abortWithStatusError(c, http.StatusBadRequest, failed, err)
 			return
 		}
-		JSONReturn(c, http.StatusOK, success, gin.H{
-			"subworld_templates": sts,
-		})
 	} else {
 		userId, err := strconv.Atoi(userIdStr)
 		if err != nil {
 			abortWithStatusError(c, http.StatusBadRequest, failed, err)
 			return
 		}
-		sts, err := model.GetDerivFromCreator(rootId, userId)
+		sts, err = model.GetDerivFromCreator(rootId, userId)
 		if err != nil {
 			abortWithStatusError(c, http.StatusBadRequest, failed, err)
 			return
 		}
-		JSONReturn(c, http.StatusOK, success, gin.H{
-			"subworld_templates": sts,
-		})
 	}
+
+	filtered_sts := []model.SubworldTemplate{}
+	for i := range sts {
+		if derivable == "" || strconv.Itoa(sts[i].Derivable) == derivable {
+			filtered_sts = append(filtered_sts, sts[i])
+		}
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"subworld_templates": filtered_sts,
+	})
 }
 
 func (ctrl *SubworldTemplateController) CreateDeriv(c *gin.Context) {
@@ -319,6 +336,7 @@ func (ctrl *SubworldTemplateController) UpdateDeriv(c *gin.Context) {
 	subworld_template.DisplayName = req.DisplayName
 	subworld_template.ThumbnailCentralizedUri = req.ThumbnailCentralizedUri
 	subworld_template.DerivativeUri = req.DerivativeUri
+	subworld_template.Derivable = req.Derivable
 	if err := subworld_template.Update(); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
