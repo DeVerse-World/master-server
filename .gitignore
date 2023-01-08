@@ -6,3 +6,4 @@ vendor/*
 config.yml
 main
 config_temp.yml
+dotenv_file
