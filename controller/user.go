@@ -429,7 +429,7 @@ func (ctrl *UserController) HandleSteamLogin(c *gin.Context) {
 	opId := steam.NewOpenId(r, os.Getenv("API_HOST"))
 	switch opId.Mode() {
 	case "":
-		http.Redirect(w, r, opId.AuthUrl(), 301)
+		http.Redirect(w, r, opId.AuthUrl(), 302)
 	case "cancel":
 		w.Write([]byte("Authorization cancelled"))
 	default:
