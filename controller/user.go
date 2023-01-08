@@ -451,7 +451,7 @@ func (ctrl *UserController) HandleSteamLogin(c *gin.Context) {
 		if sessionKey != "" {
 			var lr model.LoginRequest
 			if err := lr.GetByKey(sessionKey); err != nil {
-				abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("login request session key not found"))
+				fmt.Println("login request session key not found")
 			} else {
 				lr.UpdateUserId(user.ID)
 			}
