@@ -8,11 +8,11 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/solovev/steam_go"
 
 	"github.com/hyperjiang/gin-skeleton/manager"
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
 	requestSchema "github.com/hyperjiang/gin-skeleton/manager/schema/request"
+	"github.com/hyperjiang/gin-skeleton/manager/steam"
 	"github.com/hyperjiang/gin-skeleton/manager/util"
 	"github.com/hyperjiang/gin-skeleton/model"
 )
@@ -422,11 +422,11 @@ func (ctrl *UserController) HandleSteamLogin(c *gin.Context) {
 		success = "Handle Steam Login successfully"
 		failed  = "Handle Steam Login unsuccessfully"
 	)
-	fmt.Println("Start Handling Steam Login")
 	w, r := c.Writer, c.Request
+	fmt.Println("Start Handling Steam Login " + r.Host)
 	sessionKey := c.Request.URL.Query().Get("session_key")
 	fmt.Println("Session Key " + sessionKey)
-	opId := steam_go.NewOpenId(r)
+	opId := steam.NewOpenId(r, os.Getenv("API_HOST"))
 	switch opId.Mode() {
 	case "":
 		http.Redirect(w, r, opId.AuthUrl(), 301)
