@@ -2,11 +2,13 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/solovev/steam_go"
 
 	"github.com/hyperjiang/gin-skeleton/manager"
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
@@ -412,6 +414,53 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported login mode"})
 		return
+	}
+}
+
+func (ctrl *UserController) HandleSteamLogin(c *gin.Context) {
+	const (
+		success = "Handle Steam Login successfully"
+		failed  = "Handle Steam Login unsuccessfully"
+	)
+	fmt.Println("Start Handling Steam Login")
+	w, r := c.Writer, c.Request
+	sessionKey := c.Request.URL.Query().Get("session_key")
+	fmt.Println("Session Key " + sessionKey)
+	opId := steam_go.NewOpenId(r)
+	switch opId.Mode() {
+	case "":
+		http.Redirect(w, r, opId.AuthUrl(), 301)
+	case "cancel":
+		w.Write([]byte("Authorization cancelled"))
+	default:
+		fmt.Println("Steam Login 3rd party success")
+		steamId, err := opId.ValidateAndGetId()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		fmt.Println("Received steamID " + steamId)
+		// Do whatever you want with steam id
+		//w.Write([]byte(steamId))
+
+		var user model.User
+		if err := user.GetOrCreateBySteamId(steamId); err != nil {
+			abortWithStatusError(c, http.StatusBadRequest, failed, err)
+			return
+		}
+		if sessionKey != "" {
+			var lr model.LoginRequest
+			if err := lr.GetByKey(sessionKey); err != nil {
+				abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("login request session key not found"))
+			} else {
+				lr.UpdateUserId(user.ID)
+			}
+		}
+		fmt.Println("UI Domain " + os.Getenv("UI_DOMAIN") + os.Getenv("UI_HOST"))
+		jwt.WriteUserCookie(w, &user)
+		JSONReturn(c, http.StatusOK, success, gin.H{
+			"user": user,
+		})
 	}
 }
 

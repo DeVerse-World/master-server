@@ -57,6 +57,7 @@ func WriteUserCookie(w http.ResponseWriter, u *model.User) {
 		SameSite: 4, //SameSiteNoneMode,
 		HttpOnly: false,
 		Secure:   true,
+		Domain:   os.Getenv("UI_DOMAIN"),
 	})
 }
 
@@ -69,6 +70,7 @@ func DeleteUserCookie(w http.ResponseWriter) {
 		SameSite: 4, //SameSiteNoneMode,
 		HttpOnly: false,
 		Secure:   true,
+		Domain:   os.Getenv("UI_DOMAIN"),
 	})
 }
 

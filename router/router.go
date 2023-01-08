@@ -88,6 +88,11 @@ func Route(app *gin.Engine) {
 
 		api.GET("/setting", systemSettingController.GetByInfo)
 		api.POST("/setting", systemSettingController.CreateOrUpdate)
+
 	}
 
+	utilsFe := app.Group("/pages")
+	{
+		utilsFe.GET("/user/steam_login", userController.HandleSteamLogin)
+	}
 }
