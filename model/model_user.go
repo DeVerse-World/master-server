@@ -15,6 +15,7 @@ type User struct {
 	CustomEmail   string    `json:"custom_email"`
 	WalletAddress string    `json:"wallet_address"`
 	WalletNonce   string    `json:"wallet_nonce"`
+	SteamId       string    `json:"steam_id"`
 	Name          string    `json:"name"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
@@ -31,21 +32,9 @@ func (w *User) GetOrCreateByWallet(address string) error {
 		return nil
 	} else {
 		w.WalletAddress = address
-		return w.CreateByWallet()
+		w.WalletNonce = util.GenerateRandomString(10)
+		return w.Create()
 	}
-}
-
-func (w *User) CreateByWallet() error {
-	w.WalletNonce = util.GenerateRandomString(10)
-	db := DB().Create(w)
-
-	if db.Error != nil {
-		return db.Error
-	} else if db.RowsAffected == 0 {
-		return ErrKeyConflict
-	}
-
-	return nil
 }
 
 func (w *User) GetOrCreateBySocialEmail(socialEmail string) error {
@@ -56,10 +45,21 @@ func (w *User) GetOrCreateBySocialEmail(socialEmail string) error {
 	}
 
 	w.SocialEmail = socialEmail
-	return w.CreateBySocialEmail()
+	return w.Create()
 }
 
-func (w *User) CreateBySocialEmail() error {
+func (w *User) GetOrCreateBySteamId(steamId string) error {
+	dbErr := w.GetUserBySteamId(steamId)
+
+	if dbErr == nil {
+		return nil
+	} else {
+		w.SteamId = steamId
+		return w.Create()
+	}
+}
+
+func (w *User) Create() error {
 	db := DB().Create(w)
 
 	if db.Error != nil {
@@ -117,6 +117,16 @@ func (w *User) GetUserBySocialEmail(socialEmail string) error {
 
 func (w *User) GetUserByGoogleEmail(googleEmail string) error {
 	err := DB().Where("social_email=?", googleEmail).First(w).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
+func (w *User) GetUserBySteamId(steamId string) error {
+	err := DB().Where("steam_id=?", steamId).First(w).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrDataNotFound
