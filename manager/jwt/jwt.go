@@ -14,7 +14,7 @@ import (
 )
 
 // jwt-cookie building and parsing
-const cookieName = "deverse-jwt"
+const cookieName = "deverse-jwt2"
 
 // tokens auto-refresh at the end of their lifetime,
 // so long as the user hasn't been disabled in the interim
@@ -90,12 +90,14 @@ func HandleUserCookie(w http.ResponseWriter, r *http.Request) (*model.User, erro
 	// 	}
 	// }
 
+	fmt.Println(err)
 	return u, err
 }
 
 // userFromCookie builds a user object from a JWT, if it's valid
 func userFromCookie(r *http.Request) (*model.User, error) {
 	cookie, _ := r.Cookie(cookieName)
+	fmt.Println("cookie " + string(cookie.Value) + string(cookie.Name) + cookie.Path + cookie.Domain)
 	var tokenString string
 	if cookie != nil {
 		tokenString = cookie.Value

@@ -327,6 +327,8 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 	c.BindJSON(&req)
 
 	authU, _ := jwt.HandleUserCookie(c.Writer, c.Request)
+	fmt.Println("AuthLoginLink AuthU")
+	fmt.Println(authU)
 	if authU != nil {
 		var origUser model.User
 		err := origUser.GetUserById(strconv.FormatUint(uint64(authU.ID), 10))
