@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -84,6 +85,22 @@ func getGooglePublicKey(keyID string) (string, error) {
 		return "", errors.New("key not found")
 	}
 	return key, nil
+}
+
+func ValidateAndGetSteamIdByTicket(ticket string) (string, error) {
+	key := os.Getenv("STEAM_KEY")
+	appId := os.Getenv("STEAM_APP_ID")
+	partnerApiEndpoint := "https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/" + "?key=" + key + "&appid=" + appId + "&ticket=" + ticket
+	resp, err := http.Get(partnerApiEndpoint)
+	if err != nil {
+		return "", err
+	}
+	dat, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	steamId := string(dat)
+	return steamId, nil
 }
 
 func VerifyWalletSig(from, sigHex string, msg []byte) bool {
