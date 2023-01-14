@@ -419,10 +419,10 @@ func (ctrl *UserController) AuthLoginLink(c *gin.Context) {
 	}
 }
 
-func (ctrl *UserController) HandleSteamLogin(c *gin.Context) {
+func (ctrl *UserController) HandleSteamLoginOpenID(c *gin.Context) {
 	const (
-		success = "Handle Steam Login successfully"
-		failed  = "Handle Steam Login unsuccessfully"
+		success = "Handle Steam Login through OpenID successfully"
+		failed  = "Handle Steam Login through OpenID unsuccessfully"
 	)
 	w, r := c.Writer, c.Request
 	fmt.Println("Start Handling Steam Login " + r.Host)
@@ -464,6 +464,30 @@ func (ctrl *UserController) HandleSteamLogin(c *gin.Context) {
 			"user": user,
 		})
 	}
+}
+
+func (ctrl *UserController) HandleSteamLoginSessionTicket(c *gin.Context) {
+	const (
+		success = "Handle Steam Login through InApp Session successfully"
+		failed  = "Handle Steam Login through InApp Session unsuccessfully"
+	)
+	w := c.Writer
+	ticket := c.Param("ticket")
+	steamId, err := manager.ValidateAndGetSteamIdByTicket(ticket)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	fmt.Println("Received steamID from session ticket " + steamId)
+	var user model.User
+	if err := user.GetOrCreateBySteamId(steamId); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	jwt.WriteUserCookie(w, &user)
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"user": user,
+	})
 }
 
 func (ctrl *UserController) Logout(c *gin.Context) {

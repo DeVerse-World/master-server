@@ -93,6 +93,6 @@ func Route(app *gin.Engine) {
 
 	utilsFe := app.Group("/pages")
 	{
-		utilsFe.GET("/user/steam_login", userController.HandleSteamLogin)
+		utilsFe.GET("/user/steam_login", userController.HandleSteamLoginOpenID)
 	}
 }
