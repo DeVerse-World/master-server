@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -100,6 +101,9 @@ func ValidateAndGetSteamIdByTicket(ticket string) (string, error) {
 		return "", err
 	}
 	steamId := string(dat)
+	if strings.Contains(steamId, "Access") {
+		return "", errors.New("access denied")
+	}
 	return steamId, nil
 }
 
