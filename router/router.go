@@ -42,6 +42,7 @@ func Route(app *gin.Engine) {
 		api.POST("/user/authLoginLink", userController.AuthLoginLink)
 		api.POST("/user/logout", userController.Logout)
 		api.GET("/user/pollLoginLink/:session_key", userController.PollLoginLink)
+		api.GET("/user/loginSteamSession", userController.HandleSteamLoginSessionTicket)
 		api.GET("/user/getTemporaryEventRewards", userController.GetTemporaryEventRewards)
 
 		api.GET("/avatar/:id", avatarController.Get)
