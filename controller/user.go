@@ -472,7 +472,7 @@ func (ctrl *UserController) HandleSteamLoginSessionTicket(c *gin.Context) {
 		failed  = "Handle Steam Login through InApp Session unsuccessfully"
 	)
 	w := c.Writer
-	ticket := c.Param("ticket")
+	ticket := c.Request.URL.Query().Get("ticket")
 	steamId, err := manager.ValidateAndGetSteamIdByTicket(ticket)
 	if err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)

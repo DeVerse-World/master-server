@@ -97,7 +97,6 @@ func HandleUserCookie(w http.ResponseWriter, r *http.Request) (*model.User, erro
 // userFromCookie builds a user object from a JWT, if it's valid
 func userFromCookie(r *http.Request) (*model.User, error) {
 	cookie, _ := r.Cookie(cookieName)
-	fmt.Println("cookie " + string(cookie.Value) + string(cookie.Name) + cookie.Path + cookie.Domain)
 	var tokenString string
 	if cookie != nil {
 		tokenString = cookie.Value

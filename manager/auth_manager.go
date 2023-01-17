@@ -96,11 +96,29 @@ func ValidateAndGetSteamIdByTicket(ticket string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dat, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
-	steamId := string(dat)
+
+	type Result struct {
+		Response struct {
+			Error struct {
+				ErrorDesc string `json:"errordesc"`
+			} `json:"error"`
+			Params struct {
+				SteamId string `json:"steamid"`
+			}
+		} `json:"response"`
+	}
+	var data Result
+	if err := json.Unmarshal(body, &data); err != nil {
+		return "", err
+	}
+	if data.Response.Error.ErrorDesc != "" {
+		return "", errors.New(data.Response.Error.ErrorDesc)
+	}
+	steamId := data.Response.Params.SteamId
 	if strings.Contains(steamId, "Access") {
 		return "", errors.New("access denied")
 	}
