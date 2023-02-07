@@ -9,6 +9,8 @@ import (
 
 type eventStage string
 
+var eventValidCategories = []string{"Battle", "Concert", "Gallery", "Giveaway", "Showcase", "Simulation", "Treasure Hunt"}
+
 const (
 	EVENT_UNSTARTED   eventStage = "Unstarted"
 	EVENT_IN_PROGRESS eventStage = "InProgress"
@@ -50,7 +52,7 @@ func (e *Event) GetById(id int) error {
 }
 
 func (e *Event) Create() error {
-	if !e.isValidEventCategory() {
+	if !e.isValidCategory() {
 		return errors.New("invalid event category")
 	}
 	db := DB().Create(e)
@@ -65,7 +67,7 @@ func (e *Event) Create() error {
 }
 
 func (e *Event) Update() error {
-	if !e.isValidEventCategory() {
+	if !e.isValidCategory() {
 		return errors.New("invalid event category")
 	}
 	err := DB().Model(&e).Save(e).Error
@@ -83,9 +85,8 @@ func (a *Event) Delete() error {
 	return nil
 }
 
-func (e *Event) isValidEventCategory() bool {
-	validCategories := []string{"Battle", "Concert", "Gallery", "Giveaway", "Showcase", "Simulation", "Treasure Hunt"}
-	for _, category := range validCategories {
+func (e *Event) isValidCategory() bool {
+	for _, category := range eventValidCategories {
 		if e.Category == category {
 			return true
 		}

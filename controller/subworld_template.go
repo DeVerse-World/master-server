@@ -12,6 +12,10 @@ import (
 	"github.com/hyperjiang/gin-skeleton/model"
 )
 
+type SubworldAssociation struct {
+	NftGalleries []model.NftGallery
+}
+
 type SubworldTemplateController struct {
 }
 
@@ -37,8 +41,17 @@ func (ctrl *SubworldTemplateController) GetById(c *gin.Context) {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
 	}
+
+	var a SubworldAssociation
+	nftGalleries, err := model.GetAllBySubworldTemplateId(id)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	a.NftGalleries = nftGalleries
 	JSONReturn(c, http.StatusOK, success, gin.H{
 		"subworld_template": st,
+		"association":       a,
 	})
 }
 

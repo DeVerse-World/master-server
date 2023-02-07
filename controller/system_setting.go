@@ -21,13 +21,11 @@ func (ctrl *SystemSettingController) GetByInfo(c *gin.Context) {
 		success = "Get System Setting By Info successfully"
 		failed  = "Get System Setting By Info unsuccessfully"
 	)
-	var req requestSchema.GetSystemSettingByInfo
-	if err := c.BindJSON(&req); err != nil {
-		abortWithStatusError(c, http.StatusBadRequest, failed, err)
-		return
-	}
+	key := c.Request.URL.Query().Get("key_name")
+	category := c.Request.URL.Query().Get("category")
+	objectReferenceId := c.Request.URL.Query().Get("object_reference_id")
 	var setting model.SystemSetting
-	if err := setting.GetByInfo(req.Key, req.Category, req.ObjectReferenceId); err != nil {
+	if err := setting.GetByInfo(key, category, objectReferenceId); err != nil {
 		abortWithStatusError(c, http.StatusBadRequest, failed, err)
 		return
 	}
