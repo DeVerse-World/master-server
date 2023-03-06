@@ -22,6 +22,8 @@ type CreateSubworldTemplateDerive struct {
 type UpdateSubworldTemplateDerive struct {
 	FileName                string `json:"file_name"`
 	DisplayName             string `json:"display_name"`
+	LevelIpfsUri            string `json:"level_ipfs_uri"`
+	LevelCentralizedUri     string `json:"level_centralized_uri"`
 	ThumbnailCentralizedUri string `json:"thumbnail_centralized_uri"`
 	DerivativeUri           string `json:"derivative_uri"`
 	Derivable               int    `json:"derivable"`

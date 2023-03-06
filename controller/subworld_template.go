@@ -347,6 +347,8 @@ func (ctrl *SubworldTemplateController) UpdateDeriv(c *gin.Context) {
 
 	subworld_template.FileName = req.FileName
 	subworld_template.DisplayName = req.DisplayName
+	subworld_template.LevelIpfsUri = req.LevelIpfsUri
+	subworld_template.LevelCentralizedUri = req.LevelCentralizedUri
 	subworld_template.ThumbnailCentralizedUri = req.ThumbnailCentralizedUri
 	subworld_template.DerivativeUri = req.DerivativeUri
 	subworld_template.Derivable = req.Derivable
