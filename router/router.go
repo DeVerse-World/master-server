@@ -18,6 +18,7 @@ func Route(app *gin.Engine) {
 	eventController := controller.NewEventController()
 	subworldTemplateController := controller.NewSubworldTemplateController()
 	subworldInstanceController := controller.NewSubworldInstanceController()
+	scoreSystemController := controller.NewScoreSystemController()
 	systemSettingController := controller.NewSystemSettingController()
 
 	app.GET(
@@ -71,6 +72,11 @@ func Route(app *gin.Engine) {
 		api.POST("/event/:id/exit", eventController.Exit)
 
 		api.GET("/subworld/template/:id", subworldTemplateController.GetById)
+
+		api.GET("/subworld/template/:id/retrieveScoreMapping", scoreSystemController.RetrieveScoreMapping)
+		api.POST("/subworld/template/:id/grantScoreMapping", scoreSystemController.GrantScoreMapping)
+		api.GET("/subworld/template/:id/retrieveUserScore", scoreSystemController.RetrieveUserScore)
+		api.POST("/subworld/template/:id/updateUserScore", scoreSystemController.UpdateUserScore)
 
 		api.GET("/subworld/root_template", subworldTemplateController.GetAllRoot)
 		api.POST("/subworld/root_template", subworldTemplateController.CreateRoot)
