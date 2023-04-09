@@ -8,7 +8,8 @@ CREATE TABLE `action_reward_records` (
    `action_reward_rule_id` int unsigned DEFAULT NULL,
    CONSTRAINT `fk_action_reward_rule` FOREIGN KEY (`action_reward_rule_id`) REFERENCES `action_reward_rules` (`id`) ON DELETE CASCADE,
    `user_id` int unsigned DEFAULT NULL,
-   CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+   CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+   UNIQUE KEY `action_reward_records_unique` (`action_reward_rule_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- +migrate Down
