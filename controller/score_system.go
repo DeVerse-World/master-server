@@ -177,10 +177,17 @@ func updateUserScore(
 	var action_reward_record model.ActionRewardRecord
 	action_reward_record.UserId = user_id
 	action_reward_record.ActionRewardRuleId = rule_id
+	if err := action_reward_record.GetByRuleAndUser(rule_id, user_id); err == model.ErrDataNotFound {
+		if err := action_reward_record.Create(); err != nil {
+			return err
+		}
+	}
+
 	action_reward_record.Amount = amount
-	if err := action_reward_record.Create(); err != nil {
+	if err := action_reward_record.Update(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
