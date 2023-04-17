@@ -17,6 +17,7 @@ type SubworldTemplate struct {
 	ThumbnailCentralizedUri  string    `json:"thumbnail_centralized_uri"`
 	Derivable                int       `json:"derivable"`
 	DerivativeUri            string    `json:"derivative_uri"`
+	Rating                   uint      `json:"rating"`
 	ParentSubworldTemplateId *uint     `json:"parent_subworld_template_id"`
 	CreatorId                *uint     `json:"creator_id"`
 	CreatedAt                time.Time `json:"created_at"`
