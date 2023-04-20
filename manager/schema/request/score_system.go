@@ -26,6 +26,6 @@ type UserScore struct {
 }
 
 type UserActionMapping struct {
-	RuleId         uint `json:"rule_id"`
-	RewardedAmount uint `json:"amount"`
+	RuleId     uint `json:"rule_id"`
+	OccurCount uint `json:"occur_count"`
 }

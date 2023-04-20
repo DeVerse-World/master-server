@@ -10,7 +10,7 @@ import (
 
 type ActionRewardRecord struct {
 	ID                 uint      `gorm:"primary_key" json:"id"`
-	Amount             uint      `json:"amount"`
+	OccurCount         uint      `json:"occur_count"`
 	UpdatedAt          time.Time `json:"updated_at"`
 	CreatedAt          time.Time `json:"created_at"`
 	ActionRewardRuleId uint      `json:"action_reward_rule_id"`
@@ -75,4 +75,28 @@ func GetAllUserSubworldRewardRecords(user_id string, rule_ids []uint) ([]ActionR
 		Where("action_reward_rule_id IN (?)", rule_ids).
 		Find(&rs).Error
 	return rs, err
+}
+
+func GetAllSubworldRuleRecordsExceedLimit(rule_id uint, newLimit uint) ([]ActionRewardRecord, error) {
+	var rs []ActionRewardRecord
+	err := DB().
+		Where("action_reward_rule_id = ?", rule_id).
+		Where("occur_count > ?", newLimit).
+		Find(&rs).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) || len(rs) == 0 {
+		return nil, ErrDataNotFound
+	}
+
+	return rs, err
+}
+
+func SumAllUserRewardedAmount(user_id uint, balance_type string) (uint, error) {
+	var totalValue uint
+	err := DB().Table("action_reward_records").
+		Joins("JOIN action_reward_rules ON action_reward_records.action_reward_rule_id = action_reward_rules.id").
+		Joins("JOIN entity_balances ON action_reward_rules.entity_balance_id = entity_balances.id").
+		Where("action_reward_records.user_id = ? AND entity_balances.balance_type = ?", user_id, balance_type).
+		Select("SUM(action_reward_records.occur_count * action_reward_rules.amount) as total_value").
+		Scan(&totalValue).Error
+	return totalValue, err
 }

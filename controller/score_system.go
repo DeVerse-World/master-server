@@ -70,21 +70,37 @@ func createEntityBalanceAndActionRules(
 	var dp_entity_balance model.EntityBalance
 	dp_entity_balance.EntityId = id
 	dp_entity_balance.EntityType = model.SUBWORLD_TYPE
-	dp_entity_balance.BalanceAmount = balanceMapping.BalanceAmount
 	dp_entity_balance.BalanceType = balanceType
-
-	if err := dp_entity_balance.Create(); err != nil {
+	if err := dp_entity_balance.GetBySubworldIdAndType(id, balanceType); err != nil {
+		if err := dp_entity_balance.Create(); err != nil {
+			return err
+		}
+	}
+	dp_entity_balance.BalanceAmount = balanceMapping.BalanceAmount
+	if err := dp_entity_balance.Update(); err != nil {
 		return err
 	}
 
 	for key, value := range balanceMapping.ActionRewards {
 		var action_reward_rule model.ActionRewardRule
 		action_reward_rule.ActionName = key
-		action_reward_rule.Amount = value.Amount
 		action_reward_rule.Limit = value.Limit
+		action_reward_rule.Amount = value.Amount
 		action_reward_rule.EntityBalanceId = dp_entity_balance.ID
-		if err := action_reward_rule.Create(); err != nil {
-			return err
+		if err := action_reward_rule.GetByActionNameAndEntityId(key, dp_entity_balance.ID); err == model.ErrDataNotFound {
+			if err := action_reward_rule.Create(); err != nil {
+				return err
+			}
+		} else {
+			_, err := model.GetAllSubworldRuleRecordsExceedLimit(action_reward_rule.ID, value.Limit)
+			if err == nil {
+				return errors.New("Can't decrease limit cause there's a record exceeded ")
+			}
+			action_reward_rule.Limit = value.Limit
+			action_reward_rule.Amount = value.Amount
+			if err := action_reward_rule.Update(); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -134,7 +150,7 @@ func (ctrl *ScoreSystemController) UpdateUserScore(c *gin.Context) {
 				if err := updateUserScore(
 					user_score.UserId,
 					user_action.RuleId,
-					user_action.RewardedAmount,
+					user_action.OccurCount,
 				); err != nil {
 					abortWithStatusError(c, http.StatusBadRequest, failed, err)
 					return err
@@ -144,7 +160,7 @@ func (ctrl *ScoreSystemController) UpdateUserScore(c *gin.Context) {
 				if err := updateUserScore(
 					user_score.UserId,
 					user_action.RuleId,
-					user_action.RewardedAmount,
+					user_action.OccurCount,
 				); err != nil {
 					abortWithStatusError(c, http.StatusBadRequest, failed, err)
 					return err
@@ -159,14 +175,14 @@ func (ctrl *ScoreSystemController) UpdateUserScore(c *gin.Context) {
 func updateUserScore(
 	user_id uint,
 	rule_id uint,
-	amount uint,
+	occur_count uint,
 ) error {
 	var action_reward_rule model.ActionRewardRule
 	if err := action_reward_rule.GetById(rule_id); err != nil {
 		return err
 	}
 
-	if action_reward_rule.Amount*action_reward_rule.Limit < amount {
+	if action_reward_rule.Limit < occur_count {
 		return errors.New(
 			fmt.Sprintf("user amount exceed limit for user %d and rule %d ",
 				user_id, rule_id,
@@ -183,7 +199,7 @@ func updateUserScore(
 		}
 	}
 
-	action_reward_record.Amount = amount
+	action_reward_record.OccurCount = occur_count
 	if err := action_reward_record.Update(); err != nil {
 		return err
 	}

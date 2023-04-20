@@ -32,6 +32,19 @@ func (m *ActionRewardRule) GetById(id uint) error {
 	return err
 }
 
+func (m *ActionRewardRule) GetByActionNameAndEntityId(action_name string, entity_balance_id uint) error {
+	err := DB().
+		Where("action_name=?", action_name).
+		Where("entity_balance_id=?", entity_balance_id).
+		First(m).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
 func (m *ActionRewardRule) Create() error {
 	db := DB().Create(m)
 
