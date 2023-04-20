@@ -86,6 +86,73 @@ func (ctrl *UserController) GetUserPrivateProfile(c *gin.Context) {
 	})
 }
 
+func (ctrl *UserController) GetUserPublicProfile(c *gin.Context) {
+	const (
+		success = "Get User Public Profile successfully"
+		failed  = "Get User Public Profile unsuccessfully"
+	)
+
+	userIdStr := c.Request.URL.Query().Get("id")
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	var user model.User
+	err2 := user.GetUserById(strconv.FormatUint(uint64(userId), 10))
+	if err2 != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("Not valid user"))
+		return
+	}
+
+	avatars, err := model.GetUserAvatars(user.ID)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	created_events, err := model.GetUserCreatedEvents(user.ID)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	created_root_subworld_templates, err := model.GetRootFromCreator(int(user.ID))
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	created_deriv_subworld_templates, err := model.GetAllDerivFromCreator(int(user.ID))
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	//Sanitize sensitive data
+	user.WalletNonce = "HIDDEN_FROM_PUBLIC_PROFILE"
+	dpScore, err := model.SumAllUserRewardedAmount(user.ID, "DP")
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	expScore, err := model.SumAllUserRewardedAmount(user.ID, "EXP")
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"user":                             user,
+		"dpScore":                          dpScore,
+		"expScore":                         expScore,
+		"avatars":                          avatars,
+		"created_events":                   created_events,
+		"created_root_subworld_templates":  created_root_subworld_templates,
+		"created_deriv_subworld_templates": created_deriv_subworld_templates,
+	})
+}
+
 func (ctrl *UserController) UpdateUserProfile(c *gin.Context) {
 	const (
 		success = "Update User Private Profile successfully"

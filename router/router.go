@@ -31,6 +31,7 @@ func Route(app *gin.Engine) {
 
 		api.PUT("/user/:id", userController.Update)
 		api.GET("/user/profile", userController.GetUserPrivateProfile)
+		api.GET("user/publicProfile", userController.GetUserPublicProfile)
 		api.POST("/user/profile", userController.UpdateUserProfile)
 		api.GET("/user/profile/:id/getAvatars", userController.GetAvatars)
 		//api.GET("/user/profile/:id", userController.GetUserPublicProfile)
