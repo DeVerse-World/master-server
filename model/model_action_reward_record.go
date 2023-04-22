@@ -96,7 +96,7 @@ func SumAllUserRewardedAmount(user_id uint, balance_type string) (uint, error) {
 		Joins("JOIN action_reward_rules ON action_reward_records.action_reward_rule_id = action_reward_rules.id").
 		Joins("JOIN entity_balances ON action_reward_rules.entity_balance_id = entity_balances.id").
 		Where("action_reward_records.user_id = ? AND entity_balances.balance_type = ?", user_id, balance_type).
-		Select("SUM(action_reward_records.occur_count * action_reward_rules.amount) as total_value").
+		Select("COALESCE(SUM(action_reward_records.occur_count * action_reward_rules.amount), 0) as total_value").
 		Scan(&totalValue).Error
 	return totalValue, err
 }
