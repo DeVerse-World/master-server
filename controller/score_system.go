@@ -84,6 +84,7 @@ func createEntityBalanceAndActionRules(
 	for key, value := range balanceMapping.ActionRewards {
 		var action_reward_rule model.ActionRewardRule
 		action_reward_rule.ActionName = key
+		action_reward_rule.DisplayName = value.DisplayName
 		action_reward_rule.Limit = value.Limit
 		action_reward_rule.Amount = value.Amount
 		action_reward_rule.EntityBalanceId = dp_entity_balance.ID
@@ -96,6 +97,7 @@ func createEntityBalanceAndActionRules(
 			if err == nil {
 				return errors.New("Can't decrease limit cause there's a record exceeded ")
 			}
+			action_reward_rule.DisplayName = value.DisplayName
 			action_reward_rule.Limit = value.Limit
 			action_reward_rule.Amount = value.Amount
 			if err := action_reward_rule.Update(); err != nil {

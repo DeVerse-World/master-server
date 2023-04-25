@@ -77,8 +77,20 @@ func (ctrl *UserController) GetUserPrivateProfile(c *gin.Context) {
 		return
 	}
 
+	dpScore, err := model.SumAllUserRewardedAmount(user.ID, "DP")
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	expScore, err := model.SumAllUserRewardedAmount(user.ID, "EXP")
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
 	JSONReturn(c, http.StatusOK, success, gin.H{
 		"user":                             user,
+		"dpScore":                          dpScore,
+		"expScore":                         expScore,
 		"avatars":                          avatars,
 		"created_events":                   created_events,
 		"created_root_subworld_templates":  created_root_subworld_templates,

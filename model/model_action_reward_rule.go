@@ -11,6 +11,7 @@ import (
 type ActionRewardRule struct {
 	ID              uint      `gorm:"primary_key" json:"id"`
 	ActionName      string    `json:"action_name"`
+	DisplayName     string    `json:"display_name"`
 	Amount          uint      `json:"amount"`
 	Limit           uint      `json:"limit"`
 	UpdatedAt       time.Time `json:"updated_at"`
