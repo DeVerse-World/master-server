@@ -145,6 +145,16 @@ func (w *User) GetUserById(id string) error {
 	return err
 }
 
+func (w *User) GetUserByIdUInt(id uint) error {
+	err := DB().Where("id=?", id).First(w).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrDataNotFound
+	}
+
+	return err
+}
+
 func (w *User) UpdateWalletNonce() {
 	DB().Model(&w).Update("wallet_nonce", util.GenerateRandomString(10))
 }

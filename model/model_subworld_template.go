@@ -24,6 +24,14 @@ type SubworldTemplate struct {
 	UpdatedAt                time.Time `json:"updated_at"`
 }
 
+type EnrichedSubworldTemplate struct {
+	Template    SubworldTemplate
+	CreatorInfo struct {
+		Id   uint
+		Name string
+	}
+}
+
 func (SubworldTemplate) TableName() string {
 	return "subworld_templates"
 }

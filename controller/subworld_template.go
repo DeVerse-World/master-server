@@ -263,8 +263,12 @@ func (ctrl *SubworldTemplateController) GetAllDeriv(c *gin.Context) {
 			filtered_sts = append(filtered_sts, sts[i])
 		}
 	}
+
+	combined_sts, _ := ctrl.enrichSubworldTemplates(filtered_sts)
+
 	JSONReturn(c, http.StatusOK, success, gin.H{
-		"subworld_templates": filtered_sts,
+		"subworld_templates":          filtered_sts,
+		"enriched_subworld_templates": combined_sts,
 	})
 }
 
@@ -398,4 +402,29 @@ func (ctrl *SubworldTemplateController) DeleteDeriv(c *gin.Context) {
 	}
 
 	JSONReturn(c, http.StatusOK, success, gin.H{})
+}
+
+func (ctrl *SubworldTemplateController) enrichSubworldTemplates(
+	sts []model.SubworldTemplate,
+) ([]model.EnrichedSubworldTemplate, error) {
+	enriched_sts := []model.EnrichedSubworldTemplate{}
+	for _, s := range sts {
+		if (s.CreatorId != nil) {
+			var creator model.User
+			if err := creator.GetUserByIdUInt(*s.CreatorId); err != nil {
+				return nil, err
+			}
+			enriched_sts = append(enriched_sts, model.EnrichedSubworldTemplate{
+				Template: s,
+				CreatorInfo: struct {
+					Id   uint
+					Name string
+				}{
+					Name: creator.Name,
+					Id:   creator.ID,
+				},
+			})
+		}
+	}
+	return enriched_sts, nil
 }
