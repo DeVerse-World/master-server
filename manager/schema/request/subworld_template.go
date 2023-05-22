@@ -12,6 +12,7 @@ type UpdateSubworldTemplateRoot struct {
 	LevelIpfsUri            string `json:"level_ipfs_uri"`
 	LevelCentralizedUri     string `json:"level_centralized_uri"`
 	ThumbnailCentralizedUri string `json:"thumbnail_centralized_uri"`
+	Image360Uri             string `json:"image_360_uri"`
 	Derivable               int    `json:"derivable"`
 }
 
@@ -26,5 +27,6 @@ type UpdateSubworldTemplateDerive struct {
 	LevelCentralizedUri     string `json:"level_centralized_uri"`
 	ThumbnailCentralizedUri string `json:"thumbnail_centralized_uri"`
 	DerivativeUri           string `json:"derivative_uri"`
+	Image360Uri             string `json:"image_360_uri"`
 	Derivable               int    `json:"derivable"`
 }

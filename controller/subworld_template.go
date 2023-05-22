@@ -49,9 +49,14 @@ func (ctrl *SubworldTemplateController) GetById(c *gin.Context) {
 		return
 	}
 	a.NftGalleries = nftGalleries
+	var creator model.User
+	if st.CreatorId != nil {
+		creator.GetUserByIdUInt(*st.CreatorId)
+	}
 	JSONReturn(c, http.StatusOK, success, gin.H{
 		"subworld_template": st,
 		"association":       a,
+		"creator_info":      creator,
 	})
 }
 
@@ -409,7 +414,7 @@ func (ctrl *SubworldTemplateController) enrichSubworldTemplates(
 ) ([]model.EnrichedSubworldTemplate, error) {
 	enriched_sts := []model.EnrichedSubworldTemplate{}
 	for _, s := range sts {
-		if (s.CreatorId != nil) {
+		if s.CreatorId != nil {
 			var creator model.User
 			if err := creator.GetUserByIdUInt(*s.CreatorId); err != nil {
 				return nil, err
