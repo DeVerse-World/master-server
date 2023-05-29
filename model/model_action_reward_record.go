@@ -90,8 +90,8 @@ func GetAllSubworldRuleRecordsExceedLimit(rule_id uint, newLimit uint) ([]Action
 	return rs, err
 }
 
-func SumAllUserRewardedAmount(user_id uint, balance_type string) (uint, error) {
-	var totalValue uint
+func SumAllUserRewardedAmount(user_id uint, balance_type string) (float64, error) {
+	var totalValue float64
 	err := DB().Table("action_reward_records").
 		Joins("JOIN action_reward_rules ON action_reward_records.action_reward_rule_id = action_reward_rules.id").
 		Joins("JOIN entity_balances ON action_reward_rules.entity_balance_id = entity_balances.id").

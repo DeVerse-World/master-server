@@ -11,9 +11,9 @@ type BalanceMapping struct {
 }
 
 type ActionMapping struct {
-	DisplayName string `json:"display_name"`
-	Amount      uint   `json:"amount"`
-	Limit       uint   `json:"limit"`
+	DisplayName string  `json:"display_name"`
+	Amount      float64 `json:"amount"`
+	Limit       uint    `json:"limit"`
 }
 
 type UpdateUserScore struct {
