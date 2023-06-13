@@ -78,6 +78,7 @@ func Route(app *gin.Engine) {
 		api.POST("/subworld/template/:id/grantScoreMapping", scoreSystemController.GrantScoreMapping)
 		api.GET("/subworld/template/:id/retrieveUserScore", scoreSystemController.RetrieveUserScore)
 		api.POST("/subworld/template/:id/updateUserScore", scoreSystemController.UpdateUserScore)
+		api.POST("/subworld/template/:id/incrementStats", subworldTemplateController.IncrementStats)
 
 		api.GET("/subworld/root_template", subworldTemplateController.GetAllRoot)
 		api.POST("/subworld/root_template", subworldTemplateController.CreateRoot)

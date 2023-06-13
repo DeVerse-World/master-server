@@ -21,6 +21,9 @@ type SubworldTemplate struct {
 	Rating                   uint      `json:"rating"`
 	ParentSubworldTemplateId *uint     `json:"parent_subworld_template_id"`
 	CreatorId                *uint     `json:"creator_id"`
+	NumViews                 int       `json:"num_views"`
+	NumClicks                int       `json:"num_clicks"`
+	NumPlays                 int       `json:"num_plays"`
 	CreatedAt                time.Time `json:"created_at"`
 	UpdatedAt                time.Time `json:"updated_at"`
 }

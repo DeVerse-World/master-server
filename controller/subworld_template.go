@@ -409,6 +409,44 @@ func (ctrl *SubworldTemplateController) DeleteDeriv(c *gin.Context) {
 	JSONReturn(c, http.StatusOK, success, gin.H{})
 }
 
+func (ctrl *SubworldTemplateController) IncrementStats(c *gin.Context) {
+	const (
+		success = "Increment Stats Subworld Template successfully"
+		failed  = "Increment Stats Subworld Template unsuccessfully"
+	)
+	var subworld_template model.SubworldTemplate
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	if err := subworld_template.GetById(id); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	stats_type := c.Request.URL.Query().Get("type")
+	if stats_type == "num_plays" {
+		subworld_template.NumPlays = subworld_template.NumPlays + 1
+	} else if stats_type == "num_views" {
+		subworld_template.NumViews = subworld_template.NumViews + 1
+	} else if stats_type == "num_clicks" {
+		subworld_template.NumClicks = subworld_template.NumClicks + 1
+	} else {
+		abortWithStatusError(c, http.StatusBadRequest, failed, errors.New("invalid stats type"))
+		return
+	}
+	if err := subworld_template.Update(); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, gin.H{
+		"subworld_template": subworld_template,
+	})
+}
+
 func (ctrl *SubworldTemplateController) enrichSubworldTemplates(
 	sts []model.SubworldTemplate,
 ) ([]model.EnrichedSubworldTemplate, error) {
