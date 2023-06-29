@@ -34,6 +34,12 @@ type EnrichedSubworldTemplate struct {
 		Id   uint
 		Name string
 	}
+	DerivedWorldsStats struct {
+		NumWorldCount  int
+		NumViewsCount  int
+		NumClicksCount int
+		NumPlaysCount  int
+	}
 }
 
 func (SubworldTemplate) TableName() string {
