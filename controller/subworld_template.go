@@ -53,10 +53,16 @@ func (ctrl *SubworldTemplateController) GetById(c *gin.Context) {
 	if st.CreatorId != nil {
 		creator.GetUserByIdUInt(*st.CreatorId)
 	}
+	enriched_s, err := ctrl.enrichSingleSubworldTemplate(st)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
 	JSONReturn(c, http.StatusOK, success, gin.H{
-		"subworld_template": st,
-		"association":       a,
-		"creator_info":      creator,
+		"subworld_template":          st,
+		"association":                a,
+		"creator_info":               creator,
+		"enriched_subworld_template": enriched_s,
 	})
 }
 
@@ -455,44 +461,54 @@ func (ctrl *SubworldTemplateController) enrichSubworldTemplates(
 	enriched_sts := []model.EnrichedSubworldTemplate{}
 	for _, s := range sts {
 		if s.CreatorId != nil {
-			var creator model.User
-			if err := creator.GetUserByIdUInt(*s.CreatorId); err != nil {
-				return nil, err
-			}
-			sts, err := model.GetAllDeriv(int(s.ID))
+			enriched_s, err := ctrl.enrichSingleSubworldTemplate(s)
 			if err != nil {
 				return nil, err
 			}
-			totalDerivedViews := s.NumViews
-			totalDerivedPlays := s.NumPlays
-			totalDerivedClicks := s.NumClicks
-			for _, s := range sts {
-				totalDerivedViews += s.NumViews
-				totalDerivedClicks += s.NumClicks
-				totalDerivedPlays += s.NumPlays
-			}
-			enriched_sts = append(enriched_sts, model.EnrichedSubworldTemplate{
-				Template: s,
-				CreatorInfo: struct {
-					Id   uint
-					Name string
-				}{
-					Name: creator.Name,
-					Id:   creator.ID,
-				},
-				DerivedWorldsStats: struct {
-					NumWorldCount  int
-					NumViewsCount  int
-					NumClicksCount int
-					NumPlaysCount  int
-				}{
-					NumWorldCount:  len(sts) + 1,
-					NumViewsCount:  totalDerivedViews,
-					NumPlaysCount:  totalDerivedPlays,
-					NumClicksCount: totalDerivedClicks,
-				},
-			})
+			enriched_sts = append(enriched_sts, enriched_s)
 		}
 	}
 	return enriched_sts, nil
+}
+
+func (ctrl *SubworldTemplateController) enrichSingleSubworldTemplate(
+	s model.SubworldTemplate,
+) (model.EnrichedSubworldTemplate, error) {
+	var creator model.User
+	if err := creator.GetUserByIdUInt(*s.CreatorId); err != nil {
+		return model.EnrichedSubworldTemplate{}, err
+	}
+	sts, err := model.GetAllDeriv(int(s.ID))
+	if err != nil {
+		return model.EnrichedSubworldTemplate{}, err
+	}
+	totalDerivedViews := s.NumViews
+	totalDerivedPlays := s.NumPlays
+	totalDerivedClicks := s.NumClicks
+	for _, s := range sts {
+		totalDerivedViews += s.NumViews
+		totalDerivedClicks += s.NumClicks
+		totalDerivedPlays += s.NumPlays
+	}
+	return model.EnrichedSubworldTemplate{
+		Template: s,
+		CreatorInfo: struct {
+			Id   uint   `json:"id"`
+			Name string `json:"name"`
+		}{
+			Name: creator.Name,
+			Id:   creator.ID,
+		},
+		DerivedWorldsStats: struct {
+			NumWorldCount  int `json:"num_world_count"`
+			NumViewsCount  int `json:"num_views_count"`
+			NumClicksCount int `json:"num_clicks_count"`
+			NumPlaysCount  int `json:"num_plays_count"`
+		}{
+			NumWorldCount:  len(sts) + 1,
+			NumViewsCount:  totalDerivedViews,
+			NumPlaysCount:  totalDerivedPlays,
+			NumClicksCount: totalDerivedClicks,
+		},
+	}, nil
 }

@@ -29,17 +29,17 @@ type SubworldTemplate struct {
 }
 
 type EnrichedSubworldTemplate struct {
-	Template    SubworldTemplate
+	Template    SubworldTemplate `json:"overview"`
 	CreatorInfo struct {
-		Id   uint
-		Name string
-	}
+		Id   uint   `json:"id"`
+		Name string `json:"name"`
+	} `json:"creator_info"`
 	DerivedWorldsStats struct {
-		NumWorldCount  int
-		NumViewsCount  int
-		NumClicksCount int
-		NumPlaysCount  int
-	}
+		NumWorldCount  int `json:"num_world_count"`
+		NumViewsCount  int `json:"num_views_count"`
+		NumClicksCount int `json:"num_clicks_count"`
+		NumPlaysCount  int `json:"num_plays_count"`
+	} `json:"derived_world_stats"`
 }
 
 func (SubworldTemplate) TableName() string {
