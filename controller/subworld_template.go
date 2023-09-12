@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"github.com/hyperjiang/gin-skeleton/manager/jwt"
 	requestSchema "github.com/hyperjiang/gin-skeleton/manager/schema/request"
@@ -455,6 +456,56 @@ func (ctrl *SubworldTemplateController) IncrementStats(c *gin.Context) {
 	})
 }
 
+func (ctrl *SubworldTemplateController) AddTags(c *gin.Context) {
+	const (
+		success = "Add Tags Subworld Template successfully"
+		failed  = "Add Tags Subworld Template unsuccessfully"
+	)
+	var subworld_template model.SubworldTemplate
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	if err := subworld_template.GetById(id); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	var req requestSchema.AddSubworldTemplateTags
+	if err := c.BindJSON(&req); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+	oldSubworldTemplateTags, err := model.GetAllSubworldTemplateTags(subworld_template.ID)
+	if err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	model.DB().Transaction(func(tx *gorm.DB) error {
+		for _, oldTagObj := range oldSubworldTemplateTags {
+			if err := oldTagObj.Delete(); err != nil {
+				abortWithStatusError(c, http.StatusBadRequest, failed, err)
+				return err
+			}
+		}
+		for _, tag_name := range req.TagNames {
+			var subworld_template_tag model.SubworldTemplateTag
+			subworld_template_tag.SubworldTemplateID = subworld_template.ID
+			subworld_template_tag.TagName = tag_name
+			if err := subworld_template_tag.Create(); err != nil {
+				abortWithStatusError(c, http.StatusBadRequest, failed, err)
+				return err
+			}
+		}
+
+		JSONReturn(c, http.StatusOK, success, gin.H{})
+		return nil
+	})
+}
+
 func (ctrl *SubworldTemplateController) enrichSubworldTemplates(
 	sts []model.SubworldTemplate,
 ) ([]model.EnrichedSubworldTemplate, error) {
@@ -490,6 +541,16 @@ func (ctrl *SubworldTemplateController) enrichSingleSubworldTemplate(
 		totalDerivedClicks += s.NumClicks
 		totalDerivedPlays += s.NumPlays
 	}
+
+	subworldTemplateTags, err := model.GetAllSubworldTemplateTags(s.ID)
+	if err != nil {
+		return model.EnrichedSubworldTemplate{}, err
+	}
+	tagNames := []string{}
+	for _, tagObj := range subworldTemplateTags {
+		tagNames = append(tagNames, tagObj.TagName)
+	}
+
 	return model.EnrichedSubworldTemplate{
 		Template: s,
 		CreatorInfo: struct {
@@ -510,5 +571,6 @@ func (ctrl *SubworldTemplateController) enrichSingleSubworldTemplate(
 			NumPlaysCount:  totalDerivedPlays,
 			NumClicksCount: totalDerivedClicks,
 		},
+		TagNames: tagNames,
 	}, nil
 }

@@ -40,6 +40,7 @@ type EnrichedSubworldTemplate struct {
 		NumClicksCount int `json:"num_clicks_count"`
 		NumPlaysCount  int `json:"num_plays_count"`
 	} `json:"derived_world_stats"`
+	TagNames []string `json:"tag_names,omitempty"`
 }
 
 func (SubworldTemplate) TableName() string {

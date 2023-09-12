@@ -30,3 +30,7 @@ type UpdateSubworldTemplateDerive struct {
 	ImageParonamaUri        string `json:"image_paronama_uri"`
 	Derivable               int    `json:"derivable"`
 }
+
+type AddSubworldTemplateTags struct {
+	TagNames []string `json:"tag_names"`
+}

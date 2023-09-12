@@ -66,7 +66,7 @@ func (m *ActionRewardRule) Update() error {
 }
 
 func (m *ActionRewardRule) Delete() error {
-	db := DB().Delete(SubworldTemplate{}, "id = ?", m.ID)
+	db := DB().Delete(ActionRewardRule{}, "id = ?", m.ID)
 
 	if db.Error != nil {
 		return db.Error
