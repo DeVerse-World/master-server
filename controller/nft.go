@@ -1,6 +1,10 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -129,4 +133,172 @@ func (ctrl *NftController) UnlockName(c *gin.Context) {
 	}
 
 	JSONReturn(c, http.StatusOK, success, nil)
+}
+
+// MintNft mints a new NFT.
+func (ctrl *NftController) MintNft(c *gin.Context) {
+	const (
+		success = "Mint NFT successfully"
+		failed  = "Mint NFT unsuccessfully"
+	)
+	var (
+		request           requestSchema.MintNft
+		thxnetRequestBody []byte
+		response          interface{}
+		err               error
+	)
+
+	if err = c.BindJSON(&request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if thxnetRequestBody, err = json.Marshal(request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if response, err = requestThxNet("POST", "/l1/nft/mint", thxnetRequestBody); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, response)
+}
+
+// TransferNft transfers an NFT to another user.
+func (ctrl *NftController) TransferNft(c *gin.Context) {
+	const (
+		success = "Transfer NFT successfully"
+		failed  = "Transfer NFT unsuccessfully"
+	)
+
+	var (
+		request           requestSchema.TransferNft
+		thxnetRequestBody []byte
+		response          interface{}
+		err               error
+	)
+
+	if err = c.BindJSON(&request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if thxnetRequestBody, err = json.Marshal(request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if response, err = requestThxNet("POST", "/l1/nft/transfer", thxnetRequestBody); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, response)
+}
+
+// BurnNft burns an NFT.
+func (ctrl *NftController) BurnNft(c *gin.Context) {
+	const (
+		success = "Burn NFT successfully"
+		failed  = "Burn NFT unsuccessfully"
+	)
+
+	var (
+		request           requestSchema.BurnNft
+		thxnetRequestBody []byte
+		response          interface{}
+		err               error
+	)
+
+	if err = c.BindJSON(&request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if thxnetRequestBody, err = json.Marshal(request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if response, err = requestThxNet("POST", "/l1/nft/burn", thxnetRequestBody); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, response)
+}
+
+// UpdateDynamicNft updates the dynamic NFT.
+func (ctrl *NftController) UpdateDynamicNft(c *gin.Context) {
+	const (
+		success = "Update Dynamic NFT successfully"
+		failed  = "Update Dynamic NFT unsuccessfully"
+	)
+
+	var (
+		request           requestSchema.UpdateDynamicNft
+		thxnetRequestBody []byte
+		response          interface{}
+		err               error
+	)
+
+	if err = c.BindJSON(&request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if thxnetRequestBody, err = json.Marshal(request); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	if response, err = requestThxNet("PUT", "/l1/nft/metadata/dynamic", thxnetRequestBody); err != nil {
+		abortWithStatusError(c, http.StatusBadRequest, failed, err)
+		return
+	}
+
+	JSONReturn(c, http.StatusOK, success, response)
+}
+
+func requestThxNet(method string, path string, requestBody []byte) (interface{}, error) {
+	const BaseUrl = "https://api.helpers.testnet.thxnet.org/rest/v0.5"
+	var (
+		request      *http.Request
+		response     *http.Response
+		responseBody []byte
+		result       map[string]interface{}
+		err          error
+	)
+
+	// Create a new HTTP request
+	if request, err = http.NewRequest(method, BaseUrl+path, bytes.NewReader(requestBody)); err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	// Set headers
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("BEARER_TOKEN")))
+
+	request.Header.Set("Content-Type", "application/json")
+
+	// Create an HTTP client and send the request
+	client := &http.Client{}
+	if response, err = client.Do(request); err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+
+	// Read response
+	defer response.Body.Close()
+
+	if responseBody, err = ioutil.ReadAll(response.Body); err != nil {
+		return nil, fmt.Errorf("error getting response: %w", err)
+	}
+
+	// Form result
+	if err = json.Unmarshal(responseBody, &result); err != nil {
+		return nil, fmt.Errorf("error unmarshalling response: %w", err)
+	}
+
+	return result, nil
 }

@@ -58,6 +58,14 @@ func Route(app *gin.Engine) {
 		api.POST("/nft/lockName", nftController.LockName)
 		api.POST("/nft/unlockName", nftController.UnlockName)
 
+		// Bridge
+		api.POST("/nft/mint", nftController.MintNft)
+		api.POST("/nft/transfer", nftController.TransferNft)
+		api.POST("/nft/burn", nftController.BurnNft)
+		api.PUT("/nft/metadata/dynamic", nftController.UpdateDynamicNft)
+		// Transfer token (Native Chain Token)
+		// Transfer Token (Non-native Chain Token, i.e DP)
+
 		api.GET("/event", eventController.GetAll)
 		api.POST("/event", eventController.Create)
 		api.GET("/event/:id", eventController.Get)
