@@ -11,6 +11,14 @@ there are quite a lot of incompatible changes between master and legacy branches
 go run main.go
 ```
 
+## Pre-required (Window User):
+1. Install Go version 1.21
+2. Install GCC, can follow [this](https://www.msys2.org/)
+3. If there is any Error: 
+
+   ```go build -o c:\Data\master-server__debug_bin3967034439.exe -gcflags all=-N -l . github.com/ethereum/go-ethereum/crypto/secp256k1: build constraints exclude all Go files in C:\Users\User\go\pkg\mod\github.com\ethereum\go-ethereum@v1.8.10\crypto\secp256k1 (exit status 1)```  
+    Just run this command to update the  go-ethereum to the latest version`go get github.com/ethereum/go-ethereum@latest`
+
 ## Components
 
 - Framework: [gin-gonic/gin](https://github.com/gin-gonic/gin)
@@ -68,3 +76,4 @@ e.g export PATH="$PATH:/Users/hieuletrung/go/bin"
 ./migrate.sh new a_new_migration
 ```
 # main-server
+
